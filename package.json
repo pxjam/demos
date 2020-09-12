@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "parcel src/**/*.pug",
-    "build": "parcel build src/**/*.pug"
+    "build": "parcel build src/**/*.pug --public-url ../"
   },
   "repository": {
     "type": "git",
