@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "parcel src/**.pug"
+    "dev": "parcel src/**/*.pug",
+    "build": "parcel build src/**/*.pug"
   },
   "repository": {
     "type": "git",
@@ -11,6 +12,7 @@
   },
   "author": "Dmitry Udovichenko",
   "devDependencies": {
+    "cssnano": "^4.1.10",
     "pug": "^3.0.0",
     "sass": "^1.26.10"
   },
