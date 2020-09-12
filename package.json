@@ -1,0 +1,20 @@
+{
+  "name": "demos",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "parcel src/**.pug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pxjam/demos.git"
+  },
+  "author": "Dmitry Udovichenko",
+  "devDependencies": {
+    "pug": "^3.0.0",
+    "sass": "^1.26.10"
+  },
+  "dependencies": {
+    "three": "^0.120.1"
+  }
+}
