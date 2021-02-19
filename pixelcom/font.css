@@ -1,0 +1,54 @@
+@font-face {
+    font-family: PixelcomMedium;
+    src: url("./fonts/Pixelcom-Medium.woff2") format("woff2"),
+         url("./fonts/Pixelcom-Medium.woff") format("woff"),
+         url("./fonts/Pixelcom-Medium.otf") format("opentype");
+    font-weight: 500;
+}
+
+html {
+    font-family: PixelcomMedium, Arial, sans-serif;
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+    background-color: #b5c1c0;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 80vh;
+    padding: 10vh 5vw;
+}
+
+.spacer {
+    margin-bottom: 1.5em;
+}
+
+.h-1 {
+    font-size: calc(33px + 2vw);
+}
+
+.h-2 {
+    font-size: calc(22px + 2vw);
+}
+
+.h-3 {
+    font-size: calc(11px + 2vw);
+}
+
+.h-4 {
+    font-size: calc(5px + 2vw);
+}
+
+.small {
+    font-size: 11px;
+}
+
+.up {
+    text-transform: uppercase;
+}
