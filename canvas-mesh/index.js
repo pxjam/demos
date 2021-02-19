@@ -35,26 +35,26 @@ let drawTri = () => {
 
 function drawRotatedRect(x, y, width, height, degrees) {
     // first save the untranslated/unrotated context
-    ctx.save();
+    ctx.save()
 
-    ctx.beginPath();
+    ctx.beginPath()
     // move the rotation point to the center of the rect
-    ctx.translate(x + width / 2, y + height / 2);
+    ctx.translate(x + width / 2, y + height / 2)
     // rotate the rect
-    ctx.rotate(degrees * Math.PI / 180);
+    ctx.rotate(degrees * Math.PI / 180)
 
     // draw the rect on the transformed context
     // Note: after transforming [0,0] is visually [x,y]
     //       so the rect needs to be offset accordingly when drawn
     // ctx.strokeRect(-width / 2, -height / 2, width, height);
-    ctx.rect(-width / 2, -height / 2, width, height);
-    ctx.fillStyle = 'rgb(255,255,255)'
-    ctx.fill();
-    ctx.fillStyle = 'rgb(0,0,0)'
-    ctx.stroke();
+    ctx.rect(-width / 2, -height / 2, width, height)
+    // ctx.fillStyle = 'rgb(255,255,255)'
+    // ctx.fill();
+    // ctx.fillStyle = 'rgb(0,0,0)'
+    ctx.stroke()
 
     // restore the context to its untranslated/unrotated state
-    ctx.restore();
+    ctx.restore()
 }
 
 let drawRect = () => {
@@ -70,7 +70,7 @@ let drawRect = () => {
 
         // let opacity = (15 - Math.abs(15 - i)) / 15
         let opacity = i / 30
-        ctx.strokeStyle = `rgba(0,0,0, ${opacity})` 
+        ctx.strokeStyle = `rgba(0,0,0, ${opacity})`
         // console.log(opacity)
 
         // ctx.strokeRect(x0 + i, y0 + i, i + size, i + size)
