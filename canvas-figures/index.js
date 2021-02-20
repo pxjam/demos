@@ -8,21 +8,27 @@ canvas.height = 240
 
 let ctx = canvas.getContext('2d')
 
-let params = {
-    message: 'Hello World',
-    displayOutline: false,
+ctx.lineWidth = 5
 
-    maxSize: 6.0,
-    speed: 5,
+let params = {
+    text: 'A',
+    stroke: false,
+    fill: true,
+    type: 'circle',
+    x: true,
+    y: true,
+
+    fontSize: 193,
+    step: 28,
+
+    //opacity:
 
     height: 10,
     noiseStrength: 10.2,
     growthSpeed: 0.2,
 
-    type: 'three',
-
-    explode: function() {
-        alert('Bang!')
+    randomize: function() {
+        alert('Рандом!')
     },
 
     color0: "#ffae23", // CSS string
@@ -33,75 +39,92 @@ let params = {
 
 gui.remember(params)
 
-gui.add(params, 'message')
-gui.add(params, 'displayOutline')
-gui.add(params, 'explode')
+gui.add(params, 'type', ['circle', 'text']).onChange(() => draw())
+gui.add(params, 'x').onChange(() => draw())
+gui.add(params, 'y').onChange(() => draw())
+gui.add(params, 'step').min(5).max(200).step(1).onChange(() => draw())
 
-gui.add(params, 'maxSize').min(-10).max(10).step(0.25)
+gui.add(ctx, 'lineWidth').min(0.1).max(20).step(0.2).onChange(() => draw())
+
+gui.add(params, 'fill').onChange(() => draw())
+gui.add(params, 'stroke').onChange(() => draw())
+
+gui.add(params, 'text').onChange(() => draw())
+gui.add(params, 'randomize')
+
+gui.add(params, 'fontSize').min(10).max(200).step(1).onChange(() => draw())
 gui.add(params, 'height').step(5) // Increment amount
 
-// Choose from accepted values
-gui.add(params, 'type', ['one', 'two', 'three'])
-
-// Choose from named values
-gui.add(params, 'speed', {Stopped: 0, Slow: 0.1, Fast: 5})
-
-var f1 = gui.addFolder('Colors')
-f1.addColor(params, 'color0')
-f1.addColor(params, 'color1')
-f1.addColor(params, 'color2')
-f1.addColor(params, 'color3')
-
-var f2 = gui.addFolder('Another Folder')
-f2.add(params, 'noiseStrength')
-
-var f3 = f2.addFolder('Nested Folder')
-f3.add(params, 'growthSpeed')
-
+gui.addColor(params, 'color0')
+gui.addColor(params, 'color1')
+gui.addColor(params, 'color2')
+gui.addColor(params, 'color3')
 
 // let mouseX = 0
 // let mouseY = 0
-let step = 3
-let x0 = step
-let y0 = step
-let x = x0
-let y = y0
-let r = step / 5
-let w = canvas.width
-let h = canvas.height
 
-let colorR = 200
-let colorG = 50
-let colorB = 180
+function draw() {
+    let w = canvas.width
+    let h = canvas.height
+    let step = params.step
+    let x0 = (params.x) ? step : w / 2
+    let y0 = (params.y) ? step : h / 2
+    let x = x0
+    let y = y0
+    let r = 1
 
-let draw = () => {
+    let colorR = 80
+    let colorG = 200
+    let colorB = 100
+    let colorA = 1
+
+    console.log('draw', ctx.lineWidth)
+    //ctx.clearRect(0, 0, w, h)
+
+    ctx.fillStyle = '#000'
     ctx.rect(0, 0, w, h)
     ctx.fill()
 
-    ctx.lineWidth = 1
 //ctx.strokeStyle = '#CC88FF'
-    ctx.strokeStyle = `rgb(${colorR}, ${colorG}, ${colorB})`
+    ctx.strokeStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
+    ctx.fillStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
 
     let cols = 1 * w / step - 1
     let rows = 1 * h / step - 1
 
-    for (let i = 0; i < cols - 1; i++) {
-        for (let j = 0; j < rows - 1; j++) {
-            // ctx.strokeStyle = `rgb(${colorR + (i + j) * 3}, ${colorG}, ${colorB})`
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            if (!params.x && i > 0) return
+            if (!params.y && j > 0) continue
+
+            ctx.strokeStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
+            ctx.fillStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
 
             ctx.moveTo(x, y)
             ctx.beginPath()
 
-            ctx.arc(x, y, r, 0, 2 * Math.PI, false)
-
-            console.log(x, y)
+            console.log(params.type)
+            if (params.type === 'circle') {
+                console.log('gay')
+                ctx.arc(x, y, r, 0, 2 * Math.PI, false)
+            }
+            if (params.type === 'text') {
+                ctx.font = `${params.fontSize}px Rajdhani`
+                params.fill && ctx.fillText(params.text, x, y)
+                params.stroke && ctx.strokeText(params.text, x, y)
+            }
 
             ctx.closePath()
-            ctx.stroke()
-            y += step
-            r += 0.6
-        }
 
+            params.stroke && ctx.stroke()
+            params.fill && ctx.fill()
+
+            y += step
+            r += 0.08
+            // colorA -= 0.004
+            //ctx.lineWidth += 0.05
+            colorB += 1
+        }
         y = y0
         x += step
     }
