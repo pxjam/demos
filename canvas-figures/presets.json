@@ -1,0 +1,37 @@
+[
+  {
+    "type": "circle",
+    "x": true,
+    "y": true,
+    "step": 22,
+    "size": 2,
+    "sizeStep": 0.6,
+    "fill": true,
+    "stroke": true,
+    "strokeBgColor": true,
+    "text": "A",
+    "fontSize": 193,
+    "bgColor": [
+      0,
+      0,
+      0
+    ],
+    "color1": [
+      0,
+      221,
+      235
+    ],
+    "color2": [
+      250,
+      56,
+      250
+    ],
+    "gradDirX": "right",
+    "gradDirY": "top"
+  },
+  {
+    "type": "text",
+    "gradDirX": "right",
+    "gradDirY": "top"
+  }
+]

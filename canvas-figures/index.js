@@ -1,6 +1,7 @@
 import * as dat from 'dat.gui'
+import * as presets from './presets.json'
 
-let gui = new dat.gui.GUI()
+window.gui = new dat.gui.GUI()
 let canvas = document.querySelector('[data-canvas]')
 
 canvas.width = 400
@@ -10,24 +11,16 @@ let ctx = canvas.getContext('2d')
 
 ctx.lineWidth = 5
 
-let gradDirs = {
-    'top right': [0, 0, 'h', 'w'],
-    'right': [0, 0, 'h', 'w'],
-    'bottom right': [0, 0, 'h', 'w'],
-    'bottom': [0, 0, 'h', 'w'],
-    'bottom left': [0, 0, 'h', 'w'],
-    'left': [0, 0, 'h', 'w'],
-    'top left': [0, 0, 'h', 'w'],
-    'top': [0, 0, 'h', 'w']
-}
-
 let params = {
     text: 'A',
     stroke: false,
+    strokeBgColor: true,
     fill: true,
     type: 'circle',
     x: true,
     y: true,
+    size: 1,
+    sizeStep: 0.01,
 
     fontSize: 193,
     step: 28,
@@ -42,23 +35,27 @@ let params = {
         alert('Рандом!')
     },
 
-    color1: [0, 128, 255],
-    color2: [255, 128, 0],
+    bgColor: [0, 0, 0],
+    color1: [0,221,235],
+    color2: [250,56,250],
     gradDirX: 'right',
     gradDirY: 'top'
 }
 
 gui.remember(params)
 
-gui.add(params, 'type', ['circle', 'text']).onChange(draw)
+gui.add(params, 'type', ['circle', 'square', 'text']).onChange(draw)
 gui.add(params, 'x').onChange(draw)
 gui.add(params, 'y').onChange(draw)
 gui.add(params, 'step').min(5).max(200).step(1).onChange(draw)
+gui.add(params, 'size').min(1).max(50).step(1).onChange(draw)
+gui.add(params, 'sizeStep').min(0.01).max(1).step(0.01).onChange(draw)
 
 gui.add(ctx, 'lineWidth').min(0.1).max(20).step(0.2).onChange(draw)
 
 gui.add(params, 'fill').onChange(draw)
 gui.add(params, 'stroke').onChange(draw)
+gui.add(params, 'strokeBgColor').onChange(draw)
 
 gui.add(params, 'text').onChange(draw)
 gui.add(params, 'randomize').onChange(draw)
@@ -66,6 +63,7 @@ gui.add(params, 'randomize').onChange(draw)
 gui.add(params, 'fontSize').min(10).max(200).step(1).onChange(draw)
 // gui.add(params, 'height').step(5) // Increment amount
 //
+gui.addColor(params, 'bgColor').onChange(draw)
 gui.addColor(params, 'color1').onChange(draw)
 gui.addColor(params, 'color2').onChange(draw)
 gui.add(params, 'gradDirX', ['left', 'center', 'right']).onChange(draw)
@@ -77,7 +75,6 @@ gui.add(params, 'gradDirY', ['top', 'center', 'bottom']).onChange(draw)
 // let mouseY = 0
 
 function getGradCoords(xDir, yDir) {
-    console.log(xDir, yDir)
     let x0, x1, y0, y1
 
     switch (xDir) {
@@ -114,11 +111,11 @@ function draw() {
     let w = canvas.width
     let h = canvas.height
     let step = params.step
-    let x0 = (params.x) ? step : w / 2
+    let x0 = (params.x) ? step / 2 : w / 2
     let y0 = (params.y) ? step : h / 2
     let x = x0
     let y = y0
-    let r = 1
+    let size = params.size
 
     let colorR = params.color1[0]
     let colorG = params.color1[1]
@@ -127,41 +124,50 @@ function draw() {
 
     //ctx.clearRect(0, 0, w, h)
 
-    ctx.fillStyle = '#000'
+    let bgColor = params.bgColor
+    bgColor = `rgb(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]})`
+    ctx.fillStyle = bgColor
     ctx.rect(0, 0, w, h)
     ctx.fill()
 
 //ctx.strokeStyle = '#CC88FF'
-    ctx.strokeStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
+
     ctx.fillStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
 
     let cols = 1 * w / step - 1
     let rows = 1 * h / step - 1
-    
+
     let gradientCoords = getGradCoords(params.gradDirX, params.gradDirY)
-    console.log('gradientCoords', gradientCoords)
+    let grd = ctx.createLinearGradient(...gradientCoords)
+    let color1 = `rgba(${params.color1.join(',')})`
+    let color2 = `rgba(${params.color2.join(',')})`
+    grd.addColorStop(0, color1)
+    grd.addColorStop(1, color2)
+
+    ctx.fillStyle = grd
+
+    if (params.strokeBgColor) {
+        ctx.strokeStyle = bgColor
+    } else {
+        ctx.strokeStyle = grd
+    }
 
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
             if (!params.x && i > 0) return
             if (!params.y && j > 0) continue
 
-            ctx.strokeStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
-            ctx.fillStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
-
-            let grd = ctx.createLinearGradient(...gradientCoords)
-
-            let color1 = `rgba(${params.color1.join(',')})`
-            let color2 = `rgba(${params.color2.join(',')})`
-            grd.addColorStop(0, color1)
-            grd.addColorStop(1, color2)
-            ctx.fillStyle = grd
+            // ctx.strokeStyle = `rgba(${colorR}, ${colorG}, ${colorB})`
+            // ctx.fillStyle = `rgba(${colorR}, ${colorG}, ${colorB})`
 
             ctx.moveTo(x, y)
             ctx.beginPath()
 
             if (params.type === 'circle') {
-                ctx.arc(x, y, r, 0, 2 * Math.PI, false)
+                ctx.arc(x, y, size, 0, 2 * Math.PI, false)
+            }
+            if (params.type === 'square') {
+                ctx.rect(x - size / 2, y - size / 2, size, size)
             }
             if (params.type === 'text') {
                 ctx.font = `${params.fontSize}px Rajdhani`
@@ -171,11 +177,11 @@ function draw() {
 
             ctx.closePath()
 
-            params.stroke && ctx.stroke()
             params.fill && ctx.fill()
+            params.stroke && ctx.stroke()
 
             y += step
-            r += 0.08
+            size += params.sizeStep
             // colorA -= 0.004
             //ctx.lineWidth += 0.05
             colorB += 1
@@ -186,6 +192,20 @@ function draw() {
 }
 
 draw()
+
+
+let presetsBox = document.querySelector('[data-presets]')
+
+presets.default.forEach(presetParams => {
+    let presetCanvas = document.createElement('canvas')
+    presetCanvas.width = 300
+    presetCanvas.height = 200
+    presetsBox.appendChild(presetCanvas)
+    presetCanvas.addEventListener('click', () => {
+        Object.assign(params, presetParams)
+        gui.updateDisplay()
+    })
+})
 
 // window.addEventListener('mousemove', e => {
 //     mouseX = e.clientX - canvas.offsetLeft
