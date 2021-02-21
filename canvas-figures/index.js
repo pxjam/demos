@@ -10,6 +10,17 @@ let ctx = canvas.getContext('2d')
 
 ctx.lineWidth = 5
 
+let gradDirs = {
+    'top right': [0, 0, 'h', 'w'],
+    'right': [0, 0, 'h', 'w'],
+    'bottom right': [0, 0, 'h', 'w'],
+    'bottom': [0, 0, 'h', 'w'],
+    'bottom left': [0, 0, 'h', 'w'],
+    'left': [0, 0, 'h', 'w'],
+    'top left': [0, 0, 'h', 'w'],
+    'top': [0, 0, 'h', 'w']
+}
+
 let params = {
     text: 'A',
     stroke: false,
@@ -31,37 +42,73 @@ let params = {
         alert('Рандом!')
     },
 
-    color0: "#ffae23", // CSS string
-    color1: [0, 128, 255], // RGB array
-    color2: [0, 128, 255, 0.3], // RGB with alpha
-    color3: {h: 350, s: 0.9, v: 0.3} // Hue, saturation, value
+    color1: [0, 128, 255],
+    color2: [255, 128, 0],
+    gradDirX: 'right',
+    gradDirY: 'top'
 }
 
 gui.remember(params)
 
-gui.add(params, 'type', ['circle', 'text']).onChange(() => draw())
-gui.add(params, 'x').onChange(() => draw())
-gui.add(params, 'y').onChange(() => draw())
-gui.add(params, 'step').min(5).max(200).step(1).onChange(() => draw())
+gui.add(params, 'type', ['circle', 'text']).onChange(draw)
+gui.add(params, 'x').onChange(draw)
+gui.add(params, 'y').onChange(draw)
+gui.add(params, 'step').min(5).max(200).step(1).onChange(draw)
 
-gui.add(ctx, 'lineWidth').min(0.1).max(20).step(0.2).onChange(() => draw())
+gui.add(ctx, 'lineWidth').min(0.1).max(20).step(0.2).onChange(draw)
 
-gui.add(params, 'fill').onChange(() => draw())
-gui.add(params, 'stroke').onChange(() => draw())
+gui.add(params, 'fill').onChange(draw)
+gui.add(params, 'stroke').onChange(draw)
 
-gui.add(params, 'text').onChange(() => draw())
-gui.add(params, 'randomize')
+gui.add(params, 'text').onChange(draw)
+gui.add(params, 'randomize').onChange(draw)
 
-gui.add(params, 'fontSize').min(10).max(200).step(1).onChange(() => draw())
-gui.add(params, 'height').step(5) // Increment amount
+gui.add(params, 'fontSize').min(10).max(200).step(1).onChange(draw)
+// gui.add(params, 'height').step(5) // Increment amount
+//
+gui.addColor(params, 'color1').onChange(draw)
+gui.addColor(params, 'color2').onChange(draw)
+gui.add(params, 'gradDirX', ['left', 'center', 'right']).onChange(draw)
+gui.add(params, 'gradDirY', ['top', 'center', 'bottom']).onChange(draw)
 
-gui.addColor(params, 'color0')
-gui.addColor(params, 'color1')
-gui.addColor(params, 'color2')
-gui.addColor(params, 'color3')
+// gui.addColor(params, 'color3')
 
 // let mouseX = 0
 // let mouseY = 0
+
+function getGradCoords(xDir, yDir) {
+    console.log(xDir, yDir)
+    let x0, x1, y0, y1
+
+    switch (xDir) {
+        case 'left':
+            x0 = canvas.width
+            x1 = 0
+            break
+        case 'center':
+            x0 = 0
+            x1 = 0
+            break
+        case 'right':
+            x0 = 0
+            x1 = canvas.width
+    }
+    switch (yDir) {
+        case 'top':
+            y0 = 0
+            y1 = canvas.height
+            break
+        case 'center':
+            y0 = 0
+            y1 = 0
+            break
+        case 'bottom':
+            y0 = canvas.height
+            y1 = 0
+    }
+
+    return [x0, y0, x1, y1]
+}
 
 function draw() {
     let w = canvas.width
@@ -73,12 +120,11 @@ function draw() {
     let y = y0
     let r = 1
 
-    let colorR = 80
-    let colorG = 200
-    let colorB = 100
-    let colorA = 1
+    let colorR = params.color1[0]
+    let colorG = params.color1[1]
+    let colorB = params.color1[2]
+    let colorA = params.color1[3]
 
-    console.log('draw', ctx.lineWidth)
     //ctx.clearRect(0, 0, w, h)
 
     ctx.fillStyle = '#000'
@@ -91,6 +137,9 @@ function draw() {
 
     let cols = 1 * w / step - 1
     let rows = 1 * h / step - 1
+    
+    let gradientCoords = getGradCoords(params.gradDirX, params.gradDirY)
+    console.log('gradientCoords', gradientCoords)
 
     for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
@@ -100,12 +149,18 @@ function draw() {
             ctx.strokeStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
             ctx.fillStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
 
+            let grd = ctx.createLinearGradient(...gradientCoords)
+
+            let color1 = `rgba(${params.color1.join(',')})`
+            let color2 = `rgba(${params.color2.join(',')})`
+            grd.addColorStop(0, color1)
+            grd.addColorStop(1, color2)
+            ctx.fillStyle = grd
+
             ctx.moveTo(x, y)
             ctx.beginPath()
 
-            console.log(params.type)
             if (params.type === 'circle') {
-                console.log('gay')
                 ctx.arc(x, y, r, 0, 2 * Math.PI, false)
             }
             if (params.type === 'text') {
