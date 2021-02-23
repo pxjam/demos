@@ -2,6 +2,7 @@ import * as dat from 'dat.gui'
 import * as presets from './presets.json'
 
 window.gui = new dat.gui.GUI()
+window.params = {}
 
 function init() {
     let canvas = document.querySelector('[data-canvas]')
@@ -9,20 +10,21 @@ function init() {
     canvas.width = 600
     canvas.height = 400
 
-    let params = {
+    params = {
         text: 'A',
         stroke: false,
         strokeBgColor: true,
-        strokeWidth: 15,
+        lineWidth: 4,
         fill: true,
-        type: 'circle',
+        type: 'square',
         x: true,
         y: true,
         size: 1,
-        sizeStep: 0.01,
+        sizeStep: 0.05,
 
         fontSize: 193,
         step: 28,
+        crazyRotate: 2,
 
         //opacity:
 
@@ -48,9 +50,10 @@ function init() {
     gui.add(params, 'y').onChange(update)
     gui.add(params, 'step').min(5).max(200).step(1).onChange(update)
     gui.add(params, 'size').min(1).max(50).step(1).onChange(update)
-    gui.add(params, 'sizeStep').min(0.01).max(1).step(0.01).onChange(update)
+    gui.add(params, 'sizeStep').min(0.01).max(3).step(0.01).onChange(update)
+    gui.add(params, 'crazyRotate').min(0).max(45).step(0.1).onChange(update)
 
-    gui.add(params, 'strokeWidth').min(0.1).max(20).step(0.2).onChange(update)
+    gui.add(params, 'lineWidth').min(0.1).max(20).step(0.2).onChange(update)
 
     gui.add(params, 'fill').onChange(update)
     gui.add(params, 'stroke').onChange(update)
@@ -59,7 +62,7 @@ function init() {
     gui.add(params, 'text').onChange(update)
     gui.add(params, 'randomize').onChange(update)
 
-    gui.add(params, 'fontSize').min(10).max(200).step(1).onChange(update)
+    gui.add(params, 'fontSize').min(10).max(400).step(1).onChange(update)
 // gui.add(params, 'height').step(5) // Increment amount
 //
     gui.addColor(params, 'bgColor').onChange(update)
@@ -129,21 +132,21 @@ function init() {
         let x = x0
         let y = y0
         let size = options.size
+        let currentRotate = 0
 
         let colorR = options.color1[0]
         let colorG = options.color1[1]
         let colorB = options.color1[2]
-        let colorA = options.color1[3]
-        //ctx.clearRect(0, 0, w, h)
 
         let bgColor = options.bgColor
         bgColor = `rgb(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]})`
         ctx.fillStyle = bgColor
         ctx.rect(0, 0, w, h)
         ctx.fill()
+        //console.log('ctx.lineWidth', ctx.lineWidth)
 
-        ctx.strokeWidth = options.strokeWidth
-        ctx.fillStyle = `rgba(${colorR}, ${colorG}, ${colorB}, ${colorA})`
+        ctx.lineWidth = options.lineWidth
+        ctx.fillStyle = `rgba(${colorR}, ${colorG}, ${colorB})`
 
         let cols = 1 * w / step - 1
         let rows = 1 * h / step - 1
@@ -155,6 +158,7 @@ function init() {
         grd.addColorStop(0, color1)
         grd.addColorStop(1, color2)
 
+        //console.log('ctx.lineWidth', ctx.lineWidth)
         ctx.fillStyle = grd
 
         if (options.strokeBgColor) {
@@ -178,7 +182,18 @@ function init() {
                     ctx.arc(x, y, size, 0, 2 * Math.PI, false)
                 }
                 if (options.type === 'square') {
-                    ctx.rect(x - size / 2, y - size / 2, size, size)
+                    if (options.crazyRotate) {
+                        ctx.save()
+                        ctx.translate(x, y)
+                        ctx.rotate(currentRotate * Math.PI / 180)
+
+                        currentRotate += options.crazyRotate
+                        ctx.rect(x - size / 2, y - size / 2, size, size)
+                        //ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        //ctx.rotate(0)
+                        //ctx.translate(0, 0)
+                        ctx.restore()
+                    }
                 }
                 if (options.type === 'text') {
                     ctx.font = `${options.fontSize}px Rajdhani`
@@ -228,6 +243,11 @@ function init() {
             draw(canvas, comboParams)
             gui.updateDisplay()
         })
+    })
+
+    let saveBtn = document.querySelector('[data-save]')
+    saveBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(JSON.stringify(params))
     })
 
     draw(canvas)

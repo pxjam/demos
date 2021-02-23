@@ -1,4 +1,38 @@
 [
+  {"text":"A","stroke":true,"strokeBgColor":false,"lineWidth":0.8,"fill":false,"type":"square","x":true,"y":true,"size":1,"sizeStep":3,"fontSize":221,"step":8,"crazyRotate":1.4000000000000001,"height":10,"noiseStrength":10.2,"growthSpeed":0.2,"bgColor":[0,0,0],"color1":[0,221,235],"color2":[200,56,250],"gradDirX":"left","gradDirY":"top"},
+  {"text":"F","stroke":true,"strokeBgColor":false,"lineWidth":3,"fill":false,"type":"text","x":true,"y":true,"size":12,"sizeStep":0.72,"fontSize":400,"step":38,"crazyRotate":7.7,"height":10,"noiseStrength":10.2,"growthSpeed":0.2,"bgColor":[0,0,0],"color1":[0,167,7.416289804496046e-14],"color2":[46.000000000000014,154.00000000000009,250],"gradDirX":"right","gradDirY":"top"},,
+  {
+    "type": "square",
+    "x": true,
+    "y": true,
+    "step": 28,
+    "size": 1,
+    "sizeStep": 1.75,
+    "crazyRotate": 2,
+    "lineWidth": 7.2,
+    "fill": true,
+    "stroke": true,
+    "strokeBgColor": true,
+    "text": "A",
+    "fontSize": 193,
+    "bgColor": [
+      0,
+      0,
+      0
+    ],
+    "color1": [
+      0,
+      235,
+      124.41176470588232
+    ],
+    "color2": [
+      186.06570512820502,
+      62.96875,
+      255
+    ],
+    "gradDirX": "right",
+    "gradDirY": "top"
+  },
   {
     "type": "circle",
     "x": true,
@@ -36,12 +70,5 @@
     "gradDirY": "top",
     "strokeWidth": 20,
     "strokeBgColor": true
-  },
-  {
-    "type": "text",
-    "gradDirX": "right",
-    "gradDirY": "top",
-    "strokeBgColor": false,
-    "color1": [235, 221, 0]
   }
 ]

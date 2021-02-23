@@ -6,12 +6,25 @@ body {
 
 h1 {
     font-family: 'Rajdhani', sans-serif;
+    font-size: 55px;
+    display: flex;
+    text-transform: uppercase;
+    align-items: center;
+    margin-bottom: 0.4em;
+}
+
+.button {
+    margin-left: 3vw;
 }
 
 .presets {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(calc(200px + 5vw), 1fr));
     gap: calc(12px + 1.2vw);
+}
+
+.canvas {
+    max-width: 100%;
 }
 
 .preset {
@@ -21,4 +34,25 @@ h1 {
 .preset__img {
     width: 100%;
     aspect-ratio: 3 / 2;
+}
+
+button {
+    font-family: 'Rajdhani', sans-serif;
+    background: black;
+    border: none;
+    appearance: none;
+    color: white;
+    font-size: 20px;
+    padding: 7px 14px;
+    cursor: pointer;
+    outline: 3px rebeccapurple solid;
+    box-shadow: 6px 6px 0 rebeccapurple;
+    transition: background 1s;
+
+    &:active {
+        background: rebeccapurple;
+        transform: translate(3px, 3px);
+        box-shadow: 3px 3px 0 rebeccapurple;
+        transition: background 0s;
+    }
 }
