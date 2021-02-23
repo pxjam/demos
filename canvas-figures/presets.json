@@ -31,7 +31,17 @@
   },
   {
     "type": "text",
+    "step": 50,
+    "gradDirX": "left",
+    "gradDirY": "top",
+    "strokeWidth": 20,
+    "strokeBgColor": true
+  },
+  {
+    "type": "text",
     "gradDirX": "right",
-    "gradDirY": "top"
+    "gradDirY": "top",
+    "strokeBgColor": false,
+    "color1": [235, 221, 0]
   }
 ]

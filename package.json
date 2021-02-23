@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "parcel src/**/*.pug",
-    "build": "parcel build src/**/*.pug --public-url ../"
+    "dev": "parcel canvas-figures/index.html",
+    "build": "parcel build canvas-figures/index.html --public-url ../"
   },
   "repository": {
     "type": "git",
