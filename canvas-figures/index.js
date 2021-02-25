@@ -16,32 +16,31 @@ function init() {
     }
 
     params = {
-        text: 'A',
+        text: "A",
         stroke: false,
         strokeBgColor: true,
-        lineWidth: 4,
+        lineWidth: 4.4,
         fill: true,
-        type: 'square',
+        type: "square",
         x: true,
         y: true,
-        size: 1,
+        size: 13,
         sizeStep: 0.05,
-
         fontSize: 193,
-        step: 28,
-        rotate: 2,
-        rotateType: 'spiral',
-        //opacity:
-
-        randomize: function() {
-            alert('Рандом!')
-        },
-
+        step: 15,
+        rotate: 92.5,
+        rotateType: "chaos",
+        opacity: 0,
+        opacityStep: 0.001,
         bgColor: [0, 0, 0],
         color1: [0, 221, 235],
         color2: [250, 56, 250],
-        gradDirX: 'right',
-        gradDirY: 'top'
+        gradDirX: "right",
+        gradDirY: "top",
+
+        randomize: function() {
+            alert('Рандом!')
+        }
     }
 
     gui.remember(params)
@@ -54,6 +53,8 @@ function init() {
     gui.add(params, 'sizeStep').min(0.01).max(3).step(0.01).onChange(update)
     gui.add(params, 'rotate').min(0).max(90).step(0.1).onChange(update)
     gui.add(params, 'rotateType', ['spiral', 'inPlace', 'chaos']).onChange(update)
+    gui.add(params, 'opacity').min(0).max(1).step(0.01).onChange(update)
+    gui.add(params, 'opacityStep').min(0).max(0.05).step(0.0005).onChange(update)
 
     gui.add(params, 'lineWidth').min(0.1).max(20).step(0.2).onChange(update)
 
@@ -135,6 +136,7 @@ function init() {
         let y = y0
         let size = options.size
         let currentRotate = 0
+        let opacity = options.opacity
 
         let colorR = options.color1[0]
         let colorG = options.color1[1]
@@ -143,6 +145,7 @@ function init() {
         let bgColor = options.bgColor
         bgColor = `rgb(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]})`
         ctx.fillStyle = bgColor
+        ctx.globalAlpha = 1
         ctx.rect(0, 0, w, h)
         ctx.fill()
         //console.log('ctx.lineWidth', ctx.lineWidth)
@@ -179,6 +182,9 @@ function init() {
 
                 ctx.moveTo(x, y)
                 ctx.beginPath()
+
+                opacity += options.opacityStep
+                ctx.globalAlpha = opacity
 
                 if (options.type === 'circle') {
                     ctx.arc(x, y, size, 0, 2 * Math.PI, false)
@@ -252,8 +258,8 @@ function init() {
     })
 
     let animSelect = document.querySelector('[data-anim-select]')
-    let animFrom = document.querySelector('[data-anim-from]')
-    let animTo = document.querySelector('[data-anim-to]')
+    //let animFrom = document.querySelector('[data-anim-from]')
+    let animDelta = document.querySelector('[data-anim-delta]')
     let animTime = document.querySelector('[data-anim-time]')
 
     // find controls with number type
@@ -267,27 +273,26 @@ function init() {
         //console.log(animSelect.value)
         let paramName = animSelect.value
         let controller = gui.__controllers.find(el => el.property === paramName)
-        
-        console.log(paramName, gui.__controllers , controller)
 
-        let from = controller.__min
-        let to = controller.__max
+        console.log(paramName, gui.__controllers, controller)
+
+        //let from = controller.__min
+        let delta = controller.__max
         let time = 3
 
-        animFrom.value = from
-        animTo.value = to
+        //animFrom.value = from
+        animDelta.value = delta
         animTime.value = time
     })
 
     let animBtn = document.querySelector('[data-anim-btn]')
     animBtn.addEventListener('click', () => {
         let paramName = animSelect.value
-        let from = animFrom.value * 1
-        let to = animTo.value * 1
+        let delta = animDelta.value * 1
         let time = animTime.value * 1
 
         let framesCount = time * 60
-        let step = (to - from) / framesCount
+        let step = delta / framesCount
         let i = 0
 
         function anim() {
