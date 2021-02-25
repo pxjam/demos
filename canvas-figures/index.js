@@ -3,12 +3,17 @@ import * as presets from './presets.json'
 
 window.gui = new dat.gui.GUI()
 window.params = {}
+let update
 
 function init() {
     let canvas = document.querySelector('[data-canvas]')
 
     canvas.width = 600
     canvas.height = 400
+
+    update = () => {
+        draw()
+    }
 
     params = {
         text: 'A',
@@ -24,13 +29,9 @@ function init() {
 
         fontSize: 193,
         step: 28,
-        crazyRotate: 2,
-
+        rotate: 2,
+        rotateType: 'spiral',
         //opacity:
-
-        height: 10,
-        noiseStrength: 10.2,
-        growthSpeed: 0.2,
 
         randomize: function() {
             alert('Рандом!')
@@ -51,7 +52,8 @@ function init() {
     gui.add(params, 'step').min(5).max(200).step(1).onChange(update)
     gui.add(params, 'size').min(1).max(50).step(1).onChange(update)
     gui.add(params, 'sizeStep').min(0.01).max(3).step(0.01).onChange(update)
-    gui.add(params, 'crazyRotate').min(0).max(45).step(0.1).onChange(update)
+    gui.add(params, 'rotate').min(0).max(90).step(0.1).onChange(update)
+    gui.add(params, 'rotateType', ['spiral', 'inPlace', 'chaos']).onChange(update)
 
     gui.add(params, 'lineWidth').min(0.1).max(20).step(0.2).onChange(update)
 
@@ -182,12 +184,20 @@ function init() {
                     ctx.arc(x, y, size, 0, 2 * Math.PI, false)
                 }
                 if (options.type === 'square') {
-                    if (options.crazyRotate) {
+                    if (options.rotate) {
                         ctx.save()
-                        ctx.translate(x, y)
+
+                        if (options.rotateType === 'inPlace') {
+
+                        } else if (options.rotateType === 'spiral') {
+                            ctx.translate(x, y)
+                        } else if (options.rotateType === 'chaos') {
+                            ctx.translate(canvas.width / 2, canvas.height / 2)
+                        }
+
                         ctx.rotate(currentRotate * Math.PI / 180)
 
-                        currentRotate += options.crazyRotate
+                        currentRotate += options.rotate
                         ctx.rect(x - size / 2, y - size / 2, size, size)
                         //ctx.setTransform(1, 0, 0, 1, 0, 0);
                         //ctx.rotate(0)
@@ -217,10 +227,6 @@ function init() {
         }
     }
 
-    function update() {
-        draw()
-    }
-
     let presetsBox = document.querySelector('[data-presets]')
 
     presets.default.forEach(presetParams => {
@@ -245,12 +251,73 @@ function init() {
         })
     })
 
+    let animSelect = document.querySelector('[data-anim-select]')
+    let animFrom = document.querySelector('[data-anim-from]')
+    let animTo = document.querySelector('[data-anim-to]')
+    let animTime = document.querySelector('[data-anim-time]')
+
+    // find controls with number type
+    Object.keys(params).filter(key => typeof params[key] == 'number').forEach(param => {
+        let newOption = document.createElement('option')
+        newOption.innerText = param
+        animSelect.appendChild(newOption)
+    })
+
+    animSelect.addEventListener('change', () => {
+        //console.log(animSelect.value)
+        let paramName = animSelect.value
+        let controller = gui.__controllers.find(el => el.property === paramName)
+        
+        console.log(paramName, gui.__controllers , controller)
+
+        let from = controller.__min
+        let to = controller.__max
+        let time = 3
+
+        animFrom.value = from
+        animTo.value = to
+        animTime.value = time
+    })
+
+    let animBtn = document.querySelector('[data-anim-btn]')
+    animBtn.addEventListener('click', () => {
+        let paramName = animSelect.value
+        let from = animFrom.value * 1
+        let to = animTo.value * 1
+        let time = animTime.value * 1
+
+        let framesCount = time * 60
+        let step = (to - from) / framesCount
+        let i = 0
+
+        function anim() {
+            // location.hash = params[paramName]
+            params[paramName] += step
+            draw(canvas)
+            gui.updateDisplay()
+
+            if (i < framesCount) {
+                i++
+                requestAnimationFrame(anim)
+            }
+        }
+
+        anim()
+
+        // for (let i = 0; i < framesCount - 1; i++) {
+        //
+        // }
+    })
+
     let saveBtn = document.querySelector('[data-save]')
     saveBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(JSON.stringify(params))
     })
 
     draw(canvas)
+
+    console.log(update)
+    window.update = update
 }
 
 
