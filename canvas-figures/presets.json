@@ -70,5 +70,6 @@
     "gradDirY": "top",
     "strokeWidth": 20,
     "strokeBgColor": true
-  }
+  },
+  {"text":"A","stroke":false,"strokeBgColor":true,"lineWidth":20,"fill":true,"type":"triangle","x":true,"y":true,"size":50,"sizeStep":2.92,"fontSize":221,"step":41,"crazyRotate":35.5,"height":10,"noiseStrength":10.2,"growthSpeed":0.2,"bgColor":[0,0,0],"color1":[0,221,235],"color2":[200,56,250],"gradDirX":"left","gradDirY":"top"}
 ]
