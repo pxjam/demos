@@ -45,7 +45,7 @@ function init() {
 
     gui.remember(params)
 
-    gui.add(params, 'type', ['circle', 'square', 'text']).onChange(update)
+    gui.add(params, 'type', ['circle', 'square', 'triangle', 'text']).onChange(update)
     gui.add(params, 'x').onChange(update)
     gui.add(params, 'y').onChange(update)
     gui.add(params, 'step').min(5).max(200).step(1).onChange(update)
@@ -205,6 +205,29 @@ function init() {
 
                         currentRotate += options.rotate
                         ctx.rect(x - size / 2, y - size / 2, size, size)
+                        //ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        //ctx.rotate(0)
+                        //ctx.translate(0, 0)
+                        ctx.restore()
+                    }
+                }
+                if (options.type === 'triangle') {
+                    if (options.crazyRotate) {
+                        ctx.save()
+                        ctx.translate(x, y)
+                        ctx.rotate(currentRotate * Math.PI / 180)
+
+                        currentRotate += options.crazyRotate
+                        // ctx.rect(x - size / 2, y - size / 2, size, size)
+                        ctx.beginPath();
+                        ctx.moveTo(x - size, y);
+                        ctx.lineTo(x - size / 2,y - size * Math.sqrt(3) / 2);
+                        ctx.lineTo(x, y);
+                        // ctx.moveTo(x - size, y - size);
+                        // ctx.lineTo(x - size / 2,y);
+                        // ctx.lineTo(x, y - size);
+                        ctx.closePath();
+                        ctx.stroke();
                         //ctx.setTransform(1, 0, 0, 1, 0, 0);
                         //ctx.rotate(0)
                         //ctx.translate(0, 0)
