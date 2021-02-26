@@ -212,25 +212,25 @@ function init() {
                     }
                 }
                 if (options.type === 'triangle') {
-                    if (options.crazyRotate) {
+                    if (options.rotate) {
                         ctx.save()
-                        ctx.translate(x, y)
+
+                        if (options.rotateType === 'inPlace') {
+
+                        } else if (options.rotateType === 'spiral') {
+                            ctx.translate(x, y)
+                        } else if (options.rotateType === 'chaos') {
+                            ctx.translate(canvas.width / 2, canvas.height / 2)
+                        }
                         ctx.rotate(currentRotate * Math.PI / 180)
 
-                        currentRotate += options.crazyRotate
-                        // ctx.rect(x - size / 2, y - size / 2, size, size)
+                        currentRotate += options.rotate
                         ctx.beginPath();
                         ctx.moveTo(x - size, y);
                         ctx.lineTo(x - size / 2,y - size * Math.sqrt(3) / 2);
                         ctx.lineTo(x, y);
-                        // ctx.moveTo(x - size, y - size);
-                        // ctx.lineTo(x - size / 2,y);
-                        // ctx.lineTo(x, y - size);
                         ctx.closePath();
-                        ctx.stroke();
-                        //ctx.setTransform(1, 0, 0, 1, 0, 0);
-                        //ctx.rotate(0)
-                        //ctx.translate(0, 0)
+                        // ctx.stroke();
                         ctx.restore()
                     }
                 }
