@@ -51,10 +51,10 @@ function init() {
     gui.add(params, 'step').min(5).max(200).step(1).onChange(update)
     gui.add(params, 'size').min(1).max(50).step(1).onChange(update)
     gui.add(params, 'sizeStep').min(0.01).max(3).step(0.01).onChange(update)
-    gui.add(params, 'rotate').min(0).max(90).step(0.1).onChange(update)
-    gui.add(params, 'rotateType', ['spiral', 'inPlace', 'chaos']).onChange(update)
+    gui.add(params, 'rotate').min(0).max(180).step(0.01).onChange(update)
+    gui.add(params, 'rotateType', ['none', 'corner', 'spiral', 'inPlace', 'chaos']).onChange(update)
     gui.add(params, 'opacity').min(0).max(1).step(0.01).onChange(update)
-    gui.add(params, 'opacityStep').min(0).max(0.05).step(0.0005).onChange(update)
+    gui.add(params, 'opacityStep').min(0).max(0.05).step(0.00001).onChange(update)
 
     gui.add(params, 'lineWidth').min(0.1).max(20).step(0.2).onChange(update)
 
@@ -194,29 +194,37 @@ function init() {
                         ctx.save()
 
                         if (options.rotateType === 'inPlace') {
-
+                            ctx.translate(x, y)
                         } else if (options.rotateType === 'spiral') {
                             ctx.translate(x, y)
                         } else if (options.rotateType === 'chaos') {
                             ctx.translate(canvas.width / 2, canvas.height / 2)
                         }
+                        if (options.rotateType !== 'none') {
+                            ctx.rotate(currentRotate * Math.PI / 180)
+                            currentRotate += options.rotate
+                        }
 
-                        ctx.rotate(currentRotate * Math.PI / 180)
-
-                        currentRotate += options.rotate
-                        ctx.rect(x - size / 2, y - size / 2, size, size)
-                        //ctx.setTransform(1, 0, 0, 1, 0, 0);
-                        //ctx.rotate(0)
-                        //ctx.translate(0, 0)
-                        ctx.restore()
+                        if (options.rotateType === 'inPlace') {
+                            ctx.translate(-x, -y)
+                        }
                     }
+
+                    ctx.rect(x - size / 2, y - size / 2, size, size)
+
+
+                    //ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    //ctx.rotate(0)
+                    //ctx.translate(0, 0)
+                    ctx.restore()
+
                 }
                 if (options.type === 'triangle') {
                     if (options.rotate) {
                         ctx.save()
 
                         if (options.rotateType === 'inPlace') {
-
+                            ctx.translate(x + size / 2, y + size / 2)
                         } else if (options.rotateType === 'spiral') {
                             ctx.translate(x, y)
                         } else if (options.rotateType === 'chaos') {
@@ -224,12 +232,16 @@ function init() {
                         }
                         ctx.rotate(currentRotate * Math.PI / 180)
 
+                        if (options.rotateType === 'inPlace') {
+                            ctx.translate(-x - size / 2, -y - size / 2)
+                        }
+
                         currentRotate += options.rotate
-                        ctx.beginPath();
-                        ctx.moveTo(x - size, y);
-                        ctx.lineTo(x - size / 2,y - size * Math.sqrt(3) / 2);
-                        ctx.lineTo(x, y);
-                        ctx.closePath();
+                        ctx.beginPath()
+                        ctx.moveTo(x - size, y)
+                        ctx.lineTo(x - size / 2, y - size * Math.sqrt(3) / 2)
+                        ctx.lineTo(x, y)
+                        ctx.closePath()
                         // ctx.stroke();
                         ctx.restore()
                     }
@@ -300,7 +312,7 @@ function init() {
         console.log(paramName, gui.__controllers, controller)
 
         //let from = controller.__min
-        let delta = controller.__max
+        let delta = controller.__step * 60 * 3
         let time = 3
 
         //animFrom.value = from
