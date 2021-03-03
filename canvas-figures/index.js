@@ -45,7 +45,7 @@ function init() {
 
     gui.remember(params)
 
-    gui.add(params, 'type', ['circle', 'square', 'triangle', 'text']).onChange(update)
+    gui.add(params, 'type', ['circle', 'square', 'triangle', 'random', 'text']).onChange(update)
     gui.add(params, 'x').onChange(update)
     gui.add(params, 'y').onChange(update)
     gui.add(params, 'step').min(5).max(200).step(1).onChange(update)
@@ -111,6 +111,46 @@ function init() {
 
         return [x0, y0, x1, y1]
     }
+
+    function randomInteger(min = 0, max = 1) {
+        let rand = min + Math.random() * (max + 1 - min)
+        return Math.floor(rand)
+    }
+
+    function circle(props) { // circle
+        let ctx = props.ctx
+        let size = props.size
+        let x = props.x
+        let y = props.y
+
+        ctx.arc(x, y, size, 0, 2 * Math.PI, false)
+    }
+
+    function square(props) { // square
+        let ctx = props.ctx
+        let size = props.size
+        let x = props.x
+        let y = props.y
+
+        ctx.rect(x - size / 2, y - size / 2, size, size)
+    }
+
+    function triangle(props) { // triangle
+        let ctx = props.ctx
+        let size = props.size
+        let x = props.x
+        let y = props.y
+
+        ctx.beginPath()
+        ctx.moveTo(x - size / 2, y + size / 2)
+        ctx.lineTo(x, y - size * Math.sqrt(3) / 2 + (size / 2))
+        ctx.lineTo(x + size / 2, y + size / 2)
+        // ctx.moveTo(x - size, y);
+        // ctx.lineTo(x - size / 2,y - size * Math.sqrt(3) / 2);
+        // ctx.lineTo(x, y);
+        ctx.closePath()
+    }
+
 
     function draw(cnv, options) {
         if (!cnv) {
@@ -187,7 +227,7 @@ function init() {
                 ctx.globalAlpha = opacity
 
                 if (options.type === 'circle') {
-                    ctx.arc(x, y, size, 0, 2 * Math.PI, false)
+                    circle({ctx, size, x, y})
                 }
                 if (options.type === 'square') {
                     if (options.rotate) {
@@ -210,12 +250,10 @@ function init() {
                         }
                     }
 
+                    // TODO решить как правильно
                     ctx.rect(x - size / 2, y - size / 2, size, size)
+                    square({ctx, size, x, y})
 
-
-                    //ctx.setTransform(1, 0, 0, 1, 0, 0);
-                    //ctx.rotate(0)
-                    //ctx.translate(0, 0)
                     ctx.restore()
 
                 }
@@ -237,14 +275,38 @@ function init() {
                         }
 
                         currentRotate += options.rotate
-                        ctx.beginPath()
-                        ctx.moveTo(x - size, y)
-                        ctx.lineTo(x - size / 2, y - size * Math.sqrt(3) / 2)
-                        ctx.lineTo(x, y)
-                        ctx.closePath()
-                        // ctx.stroke();
+                        triangle({ctx, size, x, y})
                         ctx.restore()
                     }
+                }
+                if (options.type === 'random') {
+                    let figure = ['circle', 'square', 'triangle'][randomInteger(0, 2)]
+                    ctx.save()
+
+                    if (options.rotate && figure !== 'circle') {
+                        if (options.rotateType === 'inPlace') {
+
+                        } else if (options.rotateType === 'spiral') {
+                            ctx.translate(x, y)
+                        } else if (options.rotateType === 'chaos') {
+                            ctx.translate(canvas.width / 2, canvas.height / 2)
+                        }
+                        ctx.rotate(currentRotate * Math.PI / 180)
+
+                        currentRotate += options.rotate
+                    }
+                    switch (figure) {
+                        case "circle":
+                            circle({ctx, size, x, y})
+                            break
+                        case "square":
+                            square({ctx, size, x, y})
+                            break
+                        case "triangle":
+                            triangle({ctx, size, x, y})
+                    }
+
+                    ctx.restore()
                 }
                 if (options.type === 'text') {
                     ctx.font = `${options.fontSize}px Rajdhani`
