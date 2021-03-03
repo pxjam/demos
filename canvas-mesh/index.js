@@ -12,7 +12,7 @@ let params = {
     rotateCenterY: canvas.height * 0.2,
     gradDirX: "right",
     gradDirY: "top",
-    size: 220,
+    size: 250,
     color1: [0, 251, 235],
     color2: [186, 0, 250],
     maxPower: .3
@@ -20,8 +20,8 @@ let params = {
 
 let drawRect = () => {
     let size = params.size
-    let step = 14
-    let stepCount = 30
+    let step = 20
+    let stepCount = 20
     let time = performance.now() / 500
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -36,8 +36,8 @@ let drawRect = () => {
     ctx.strokeStyle = grd
 
     for (let i = 1; i < stepCount; i++) {
-        let x0 = params.rotateCenterX + 140 * Math.sin((time + i) / 12)
-        let y0 = params.rotateCenterY + 140 * Math.cos((time + i) / 12)
+        let x0 = params.rotateCenterX + 40 * Math.sin((time + i) / 6)
+        let y0 = params.rotateCenterY + 40 * Math.cos((time + i) / 6)
 
         ctx.globalAlpha = i / stepCount
 

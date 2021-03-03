@@ -50,7 +50,7 @@ function init() {
     gui.add(params, 'y').onChange(update)
     gui.add(params, 'step').min(5).max(200).step(1).onChange(update)
     gui.add(params, 'size').min(1).max(50).step(1).onChange(update)
-    gui.add(params, 'sizeStep').min(0.01).max(3).step(0.01).onChange(update)
+    gui.add(params, 'sizeStep').min(0.001).max(3).step(0.001).onChange(update)
     gui.add(params, 'rotate').min(0).max(180).step(0.01).onChange(update)
     gui.add(params, 'rotateType', ['none', 'corner', 'spiral', 'inPlace', 'chaos']).onChange(update)
     gui.add(params, 'opacity').min(0).max(1).step(0.01).onChange(update)
@@ -249,9 +249,6 @@ function init() {
                             ctx.translate(-x, -y)
                         }
                     }
-
-                    // TODO решить как правильно
-                    ctx.rect(x - size / 2, y - size / 2, size, size)
                     square({ctx, size, x, y})
 
                     ctx.restore()
