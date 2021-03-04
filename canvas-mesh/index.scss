@@ -1,7 +1,42 @@
+@font-face {
+    font-family: PixelcomMedium;
+    src: url("./fonts/Pixelcom-Medium.woff2") format("woff2");
+    font-weight: 500;
+}
+
+html {
+    font-family: PixelcomMedium, Arial, sans-serif;
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+    cursor: pointer;
+}
+
+.box {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    width: 70vw;
+    height: 80vh;
+    padding: 10vh 5vw;
+}
+
+.h1 {
+    position: relative;
+    font-size: calc(40px + 4vw);
+    line-height: 1.08;
+    letter-spacing: 0.05em;
+}
+
 .mesh {
     position: fixed;
     top: 0;
     right: 0;
-    //width: 1000px;
-    //height: 800px;
+}
+
+.nobr {
+    white-space: nowrap;
 }

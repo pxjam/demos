@@ -17,4 +17,6 @@ export default function(ctx, cx, cy, width, height, degrees) {
     // ctx.fillStyle = 'rgb(0,0,0)'
     // restore the context to its untranslated/unrotated state
     ctx.restore()
+
+    //return [[-width / 2, -height / 2], [-width / 2, -height / 2], ]
 }
