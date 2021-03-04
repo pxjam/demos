@@ -21,6 +21,7 @@ let params = {
 }
 
 let mode = 0
+let phantom = false
 
 let drawRect = () => {
     let size = params.size
@@ -57,9 +58,9 @@ let drawRect = () => {
         let width = size * perspectiveFactor * (1 + params.maxPower * power)
         let height = width
 
-        let points = drawRotatedRect2(ctx, x, y, width, height, time + i)
+        let points = drawRotatedRect2(ctx, x, y, width, height, time + i, phantom)
 
-        if (prevPoints && [1, 2].includes(mode)) {
+        if (prevPoints && [1, 2, 3].includes(mode)) {
             for (let i = 0; i < 4; i++) {
                 ctx.moveTo(...prevPoints[i])
                 ctx.lineTo(...points[i])
@@ -70,7 +71,7 @@ let drawRect = () => {
             }
         }
 
-        if (mode === 2) {
+        if ([2, 3, 4].includes(mode)) {
             for (let i = 0; i < 4; i++) {
                 ctx.moveTo(0, 0)
                 ctx.lineTo(...points[i])
@@ -105,5 +106,6 @@ window.addEventListener('mousemove', e => {
 
 window.addEventListener('click', () => {
     mode++
-    if (mode > 2) mode = 0
+    if (mode > 4) mode = 0
+    phantom = (mode > 2)
 })

@@ -1,4 +1,4 @@
-export default function(ctx, cx, cy, width, height, degrees) {
+export default function(ctx, cx, cy, width, height, degrees, phantom) {
     ctx.beginPath()
 
     let theta = degrees * Math.PI / 180
@@ -26,12 +26,13 @@ export default function(ctx, cx, cy, width, height, degrees) {
         rotatePoint(cx - w2, cy + h2)
     ]
 
-    ctx.moveTo(...points[0])
-    ctx.lineTo(...points[1])
-    ctx.lineTo(...points[2])
-    ctx.lineTo(...points[3])
-    ctx.lineTo(...points[0])
-
+    if (!phantom) {
+        ctx.moveTo(...points[0])
+        ctx.lineTo(...points[1])
+        ctx.lineTo(...points[2])
+        ctx.lineTo(...points[3])
+        ctx.lineTo(...points[0])
+    }
     ctx.closePath()
 
     return points
