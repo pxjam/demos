@@ -1,5 +1,8 @@
+import Tweakpane from "tweakpane"
 import getGradCoords from "./modules/getGradCoords"
 import drawRotatedRect2 from "./modules/drawRotatedRect2"
+
+let pane = new Tweakpane
 
 let canvas = document.querySelector('[data-canvas]')
 let ctx = canvas.getContext('2d')
@@ -8,33 +11,68 @@ let mouseX = 0
 let mouseY = 0
 
 let params = {
+    mode: 0,
     rotateCenterX: canvas.width * 0.5,
     rotateCenterY: canvas.height * 0.4,
     gradDirX: "right",
     gradDirY: "top",
     size: 350,
-    color1: [0, 251, 235],
-    color2: [186, 0, 250],
+    color1: {r: 0, g: 251, b: 235},
+    color2: {r: 186, g: 0, b: 250},
     maxPower: 1.1,
     minOpacity: 0.3,
-    perspective: 0.5
+    perspective: 0.5,
+    segments: 20,
+    timeSlowdown: 500,
+    step: 20,
+    rotateRadius: 40,
+    segmentRotation: 0.15
 }
 
 let mode = 0
 let phantom = false
 
+const f1 = pane.addFolder({
+    title: 'Настройки',
+});
+const modeBtn = f1.addButton({
+    title: 'Сменить режим',
+})
+
+modeBtn.on('click', () => {
+    mode++
+    if (mode > 4) mode = 0
+    phantom = (mode > 2)
+})
+// canvas.addEventListener('click', switchMode)
+
+f1.addSeparator()
+f1.addInput(params, 'size', {min: 10, max: 800, step: 10})
+f1.addInput(params, 'segments', {min: 1, max: 40, step: 1})
+f1.addInput(params, 'timeSlowdown', {min: 1, max: 2000, step: 20})
+f1.addInput(params, 'maxPower', {min: 0, max: 5, step: 0.1})
+f1.addInput(params, 'minOpacity', {min: 0, max: 1, step: 0.1})
+f1.addInput(params, 'perspective', {min: 0, max: 1, step: 0.1})
+f1.addInput(params, 'step', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'rotateRadius', {min: 0, max: 300, step: 10})
+f1.addInput(params, 'segmentRotation', {min: 0, max: 7, step: 0.01})
+f1.addInput(params, 'color1')
+f1.addInput(params, 'color2')
+
+
 let drawRect = () => {
     let size = params.size
-    let step = 20
-    let stepCount = 7
-    let time = performance.now() / 500
+    let step = params.step
+    let stepCount = params.segments
+    let segmentRotation = params.segmentRotation
+    let time = performance.now() / params.timeSlowdown
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     let gradientCoords = getGradCoords(params.gradDirX, params.gradDirY, canvas.width, canvas.height)
     let grd = ctx.createLinearGradient(...gradientCoords)
-    let color1 = `rgba(${params.color1.join(',')})`
-    let color2 = `rgba(${params.color2.join(',')})`
+    let color1 = `rgb(${params.color1.r}, ${params.color1.g}, ${params.color1.b})`
+    let color2 = `rgba(${params.color2.r}, ${params.color2.g}, ${params.color2.b})`
     grd.addColorStop(0, color1)
     grd.addColorStop(1, color2)
 
@@ -43,8 +81,8 @@ let drawRect = () => {
     let prevPoints = null
 
     for (let i = 0; i < stepCount; i++) {
-        let x0 = params.rotateCenterX + 40 * Math.cos((-time + i) / 6)
-        let y0 = params.rotateCenterY + 40 * Math.sin((-time + i) / 6)
+        let x0 = params.rotateCenterX + params.rotateRadius * Math.cos((-time + i) * segmentRotation)
+        let y0 = params.rotateCenterY + params.rotateRadius * Math.sin((-time + i) * segmentRotation)
 
         // ctx.globalAlpha = params.minOpacity + i / stepCount * (1 - params.minOpacity)
         ctx.globalAlpha = 1 - (1 - params.minOpacity) * i / stepCount
@@ -102,10 +140,4 @@ function getMousePower(x, y) {
 window.addEventListener('mousemove', e => {
     mouseX = e.clientX - canvas.offsetLeft
     mouseY = e.clientY - canvas.offsetTop
-})
-
-window.addEventListener('click', () => {
-    mode++
-    if (mode > 4) mode = 0
-    phantom = (mode > 2)
 })

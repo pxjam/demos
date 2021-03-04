@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "dat.gui": "^0.7.7",
-    "three": "^0.120.1"
+    "three": "^0.120.1",
+    "tweakpane": "^2.0.0"
   }
 }

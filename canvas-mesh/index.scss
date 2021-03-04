@@ -11,7 +11,6 @@ html {
 
 body {
     margin: 0;
-    cursor: pointer;
 }
 
 .box {
@@ -32,10 +31,11 @@ body {
     user-select: none;
 }
 
-.mesh {
+.canvas {
     position: fixed;
     top: 0;
     right: 0;
+    cursor: pointer;
 }
 
 .nobr {
