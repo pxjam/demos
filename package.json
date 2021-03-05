@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "parcel canvas-figures/index.html",
+    "3d-gltf": "parcel 3d-gltf/index.html",
+    "elcom": "parcel elcom/room.html",
     "canvas-mesh": "parcel canvas-mesh/index.html",
     "canvas-mesh-build": "parcel build canvas-mesh/index.html --public-url ./ -d out/canvas-mesh",
-    "meshes-build": "parcel meshes/*.html",
+    "meshes-build": "parcel elcom/*.html",
     "build": "parcel build canvas-figures/index.html --public-url ./ -d out/canvas-figures"
   },
   "repository": {
@@ -21,7 +23,7 @@
   },
   "dependencies": {
     "dat.gui": "^0.7.7",
-    "three": "^0.120.1",
+    "three": "^0.126.1",
     "tweakpane": "^2.0.0"
   }
 }
