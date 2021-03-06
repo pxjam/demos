@@ -1,11 +1,14 @@
 import Tweakpane from "tweakpane"
-import drawRotatedRect from "./modules/drawRotatedRect"
+import drawRotatedRect from "./modules/drawRotatedRect2"
+import getGradCoords from "../canvas-mesh/modules/getGradCoords"
 
 let canvas = document.querySelector('[data-canvas]')
 let ctx = canvas.getContext('2d')
 
 let mouseX = 0
 let mouseY = 0
+let windowWidth = window.innerWidth
+let windowHeight = window.innerHeight
 
 let params = {
     centerX: 0.5,
@@ -13,13 +16,19 @@ let params = {
     width: 0.8,
     height: 0.5,
     backSize: 0.3,
-    segments: 3,
+    parallax: 0.7,
+    segments: 10,
     color1: {r: 0, g: 251, b: 235},
     color2: {r: 186, g: 0, b: 250},
     maxPower: .3,
     minOpacity: 0.3,
     gradDirX: "right",
     gradDirY: "top",
+    bindTopLeft: false,
+    bindTopRight: false,
+    bindBottomLeft: false,
+    bindBottomRight: false,
+    hideBody: false
 }
 
 let pane = new Tweakpane()
@@ -36,6 +45,7 @@ f1.addInput(params, 'centerY', {min: 0.01, max: 1, step: 0.01})
 f1.addInput(params, 'segments', {min: 1, max: 40, step: 1})
 f1.addInput(params, 'backSize', {min: 0, max: 1, step: 0.05})
 // f1.addInput(params, 'timeSlowdown', {min: 1, max: 2000, step: 20})
+f1.addInput(params, 'parallax', {min: 0, max: 1, step: 0.05})
 f1.addInput(params, 'maxPower', {min: 0, max: 5, step: 0.1})
 f1.addInput(params, 'minOpacity', {min: 0, max: 1, step: 0.1})
 // f1.addInput(params, 'perspective', {min: 0, max: 1, step: 0.1})
@@ -43,6 +53,11 @@ f1.addInput(params, 'minOpacity', {min: 0, max: 1, step: 0.1})
 // f1.addInput(params, 'rotateRadius', {min: 0, max: 300, step: 10})
 // f1.addInput(params, 'segmentRotation', {min: 0, max: 7, step: 0.01})
 
+f1.addInput(params, 'bindTopLeft')
+f1.addInput(params, 'bindTopRight')
+f1.addInput(params, 'bindBottomLeft')
+f1.addInput(params, 'bindBottomRight')
+f1.addInput(params, 'hideBody')
 f1.addInput(params, 'color1')
 f1.addInput(params, 'color2')
 
@@ -58,21 +73,61 @@ let render = () => {
     let backWidth = frontWidth * params.backSize
     let backHeight = frontHeight * params.backSize
 
+    let maxOffsetX = params.parallax * canvas.width
+    let maxOffsetY = params.parallax * canvas.height
+
+    let gradientCoords = getGradCoords(params.gradDirX, params.gradDirY, canvas.width, canvas.height)
+    let grd = ctx.createLinearGradient(...gradientCoords)
+    let color1 = `rgb(${params.color1.r}, ${params.color1.g}, ${params.color1.b})`
+    let color2 = `rgba(${params.color2.r}, ${params.color2.g}, ${params.color2.b})`
+    grd.addColorStop(0, color1)
+    grd.addColorStop(1, color2)
+    ctx.strokeStyle = grd
+
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     for (let i = 0; i < segments; i++) {
-        let width = frontWidth - (frontWidth - backWidth) * i / segments
-        let height = frontHeight - (frontHeight - backHeight) * i / segments
+        let segmentPower = i / segments
+        let width = frontWidth - (frontWidth - backWidth) * segmentPower
+        let height = frontHeight - (frontHeight - backHeight) * segmentPower
 
-        //console.log('height', height)
-        console.log('i', i)
-        console.log('frontWidth', frontWidth)
-        console.log('backWidth', backWidth)
-        console.log('width', width)
-        drawRotatedRect(ctx, x, y, width, height, 0)
-        // ctx.strokeRect(100,100, width,height)
+        let xShifted = x - mouseX * maxOffsetX * (i - segments / 2) / segments
+        let yShifted = y - mouseY * maxOffsetY * (i - segments / 2) / segments
+
+        let points = drawRotatedRect(ctx, xShifted, yShifted, width, height, 0, params.hideBody)
+
+        if (params.bindTopLeft) {
+            for (let j = 0; j < points.length; j++) {
+                if (j === 2) continue
+                ctx.moveTo(0, 0)
+                ctx.lineTo(points[j][0], points[j][1])
+            }
+        }
+        if (params.bindTopRight) {
+            for (let j = 0; j < points.length; j++) {
+                if (j === 3) continue
+                ctx.moveTo(canvas.width, 0)
+                ctx.lineTo(points[j][0], points[j][1])
+            }
+        }
+        if (params.bindBottomRight) {
+            for (let j = 0; j < points.length; j++) {
+                if (j === 0) continue
+                ctx.moveTo(canvas.width, canvas.height)
+                ctx.lineTo(points[j][0], points[j][1])
+            }
+        }
+        if (params.bindBottomLeft) {
+            for (let j = 0; j < points.length; j++) {
+                if (j === 1) continue
+                ctx.moveTo(0, canvas.height)
+                ctx.lineTo(points[j][0], points[j][1])
+            }
+        }
+
         ctx.stroke()
     }
+
 
     // let time = performance.now() / 500
     //
@@ -113,7 +168,7 @@ let render = () => {
     // }
 
 
-    // requestAnimationFrame(render)
+    requestAnimationFrame(render)
 }
 
 function getMousePower(x, y) {
@@ -130,6 +185,10 @@ function getMousePower(x, y) {
 function resize() {
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
+
+    windowWidth = window.innerWidth
+    windowHeight = window.innerHeight
+
     render()
 }
 
@@ -138,7 +197,7 @@ resize()
 window.addEventListener('resize', resize)
 
 window.addEventListener('mousemove', e => {
-    mouseX = e.clientX - canvas.offsetLeft
-    mouseY = e.clientY - canvas.offsetTop
+    mouseX = (e.clientX - canvas.offsetLeft - windowWidth / 2) / windowWidth
+    mouseY = (e.clientY - canvas.offsetTop - windowHeight / 2) / windowHeight
 })
 window.addEventListener('click', render)
