@@ -17,7 +17,8 @@ let params = {
     height: 0.5,
     backSize: 0.3,
     parallax: 0.7,
-    segments: 10,
+    segments: 5,
+    crossLines: 3,
     color1: {r: 0, g: 251, b: 235},
     color2: {r: 186, g: 0, b: 250},
     maxPower: .3,
@@ -43,6 +44,7 @@ f1.addInput(params, 'height', {min: 0.01, max: 1, step: 0.01})
 f1.addInput(params, 'centerX', {min: 0.01, max: 1, step: 0.01})
 f1.addInput(params, 'centerY', {min: 0.01, max: 1, step: 0.01})
 f1.addInput(params, 'segments', {min: 1, max: 40, step: 1})
+f1.addInput(params, 'crossLines', {min: 1, max: 40, step: 1})
 f1.addInput(params, 'backSize', {min: 0, max: 1, step: 0.05})
 // f1.addInput(params, 'timeSlowdown', {min: 1, max: 2000, step: 20})
 f1.addInput(params, 'parallax', {min: 0, max: 1, step: 0.05})
@@ -86,6 +88,9 @@ let render = () => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+    let pointsFront
+    let pointsBack
+
     for (let i = 0; i < segments; i++) {
         let segmentPower = i / segments
         let width = frontWidth - (frontWidth - backWidth) * segmentPower
@@ -95,6 +100,13 @@ let render = () => {
         let yShifted = y - mouseY * maxOffsetY * (i - segments / 2) / segments
 
         let points = drawRotatedRect(ctx, xShifted, yShifted, width, height, 0, params.hideBody)
+
+        if (i === 0) {
+            pointsFront = points
+        }
+        if (i === segments - 1) {
+            pointsBack = points
+        }
 
         if (params.bindTopLeft) {
             for (let j = 0; j < points.length; j++) {
@@ -126,8 +138,45 @@ let render = () => {
         }
 
         ctx.stroke()
+        ctx.closePath()
     }
 
+    for (let i = 0; i < 4; i++) {
+        // ctx.moveTo(pointsFirst[i][0], pointsFirst[i][1])
+        // ctx.lineTo(pointsLast[i][0], pointsLast[i][1])
+
+        let stripesCount = params.crossLines + 1
+
+        let frontPointX = pointsFront[i][0]
+        let backPointX = pointsBack[i][0]
+        let frontPointY = pointsFront[i][1]
+        let backPointY = pointsBack[i][1]
+
+        let iNext = i + 1
+        if (iNext > 3) iNext = 0
+
+        let frontPointNextX = pointsFront[iNext][0]
+        let backPointNextX = pointsBack[iNext][0]
+        let frontPointNextY = pointsFront[iNext][1]
+        let backPointNextY = pointsBack[iNext][1]
+
+        let frontDistanceX = (frontPointNextX - frontPointX)
+        let frontDistanceY = (frontPointNextY - frontPointY)
+        let backDistanceX = (backPointNextX - backPointX)
+        let backDistanceY = (backPointNextY - backPointY)
+
+        for (let j = 0; j <= stripesCount; j++) {
+            let x0 = frontPointX + frontDistanceX * j / stripesCount
+            let y0 = frontPointY + frontDistanceY * j / stripesCount
+            let x1 = backPointX + backDistanceX * j / stripesCount
+            let y1 = backPointY + backDistanceY * j / stripesCount
+
+            ctx.moveTo(x0, y0)
+            ctx.lineTo(x1, y1)
+        }
+    }
+
+    ctx.stroke()
 
     // let time = performance.now() / 500
     //
