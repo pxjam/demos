@@ -1,13 +1,73 @@
+@import "../common/styles/tweakpane";
+
+@font-face {
+    font-family: PixelcomMedium;
+    src: url("../common/fonts/Pixelcom-Medium.woff2") format("woff2");
+    font-weight: 500;
+}
+
+html {
+    font-family: PixelcomMedium, Arial, sans-serif;
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+}
+
+.box {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    width: 70vw;
+    height: 80vh;
+    padding: 10vh 5vw;
+    position: relative;
+}
+
+.h1 {
+    position: relative;
+    font-size: calc(40px + 4vw);
+    line-height: 1.08;
+    letter-spacing: 0.05em;
+    user-select: none;
+}
+
+.canvas {
+    position: fixed;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+
+.nobr {
+    white-space: nowrap;
+}
+
 .mesh {
     position: absolute;
     top: 0;
     width: 100%;
-    //width: 1000px;
-    //height: 800px;
 }
 
 #gui {
     position: absolute;
     top: 2px;
     left: 2px
+}
+
+.plink {
+    font-size: 20px;
+    cursor: pointer;
+
+    & + .plink {
+        margin-left: 1em;
+    }
+}
+
+.copy-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
 }

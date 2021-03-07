@@ -7,10 +7,11 @@
     "3d-gltf": "parcel 3d-gltf/index.html",
     "3d-gltf-build": "parcel build 3d-gltf/index.html --public-url ./ -d out/3d-gltf",
     "elcom": "parcel elcom/room.html",
+    "elcom-build": "parcel build elcom/room.html --public-url ./ -d out/elcom",
     "canvas-mesh": "parcel canvas-mesh/index.html",
     "canvas-mesh-build": "parcel build canvas-mesh/index.html --public-url ./ -d out/canvas-mesh",
     "meshes-build": "parcel elcom/*.html",
-    "build": "parcel build canvas-figures/index.html --public-url ./ -d out/canvas-figures"
+    "canvas-figures-build": "parcel build canvas-figures/index.html --public-url ./ -d out/canvas-figures"
   },
   "repository": {
     "type": "git",
