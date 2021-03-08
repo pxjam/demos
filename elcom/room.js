@@ -54,8 +54,8 @@ let bindPosOptions = {
 }
 
 f1.addSeparator()
-f1.addInput(params, 'width', {min: 0, max: 1, step: 0.01})
-f1.addInput(params, 'height', {min: 0, max: 1, step: 0.01})
+f1.addInput(params, 'width', {min: 0, max: 2, step: 0.01})
+f1.addInput(params, 'height', {min: 0, max: 2, step: 0.01})
 f1.addInput(params, 'centerX', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'centerY', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'segments', {min: 1, max: 100, step: 1})
