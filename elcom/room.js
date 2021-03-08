@@ -3,10 +3,6 @@ import drawRotatedRect from "./modules/drawRotatedRect2"
 import getGradCoords from "../canvas-mesh/modules/getGradCoords"
 import presets from './presets.json'
 
-
-window.presets=  presets
-// console.log(presets)
-
 let canvas = document.querySelector('[data-canvas]')
 let ctx = canvas.getContext('2d')
 
@@ -15,7 +11,7 @@ let mouseY = 0
 let windowWidth = window.innerWidth
 let windowHeight = window.innerHeight
 
-let params = {
+let paramsDefault = {
     centerX: 0.72,
     centerY: 0.5,
     width: 1.00,
@@ -32,19 +28,30 @@ let params = {
     gradDirX: "right",
     gradDirY: "top",
     bindTopLeft: false,
+    bindTopLeftPos: {x: 0, y: 0},
     bindTopRight: false,
+    bindTopRightPos: {x: 1, y: 0},
     bindBottomLeft: false,
+    bindBottomLeftPos: {x: 0, y: 1},
     bindBottomRight: false,
+    bindBottomRightPos: {x: 1, y: 1},
     hideBody: false,
     rotateSpeed: 60,
     preset: 0
 }
+
+let params = Object.assign({}, paramsDefault)
 
 window.pane = new Tweakpane()
 
 const f1 = pane.addFolder({
     title: 'Настройки',
 })
+
+let bindPosOptions = {
+    x: {min: 0, max: 1, step: 0.01},
+    y: {min: 0, max: 1, step: 0.01},
+}
 
 f1.addSeparator()
 f1.addInput(params, 'width', {min: 0, max: 1, step: 0.01})
@@ -59,9 +66,13 @@ f1.addInput(params, 'twist', {min: 0, max: Math.PI, step: 0.01})
 // f1.addInput(params, 'maxPower', {min: 0, max: 5, step: 0.1})
 f1.addInput(params, 'minOpacity', {min: 0, max: 1, step: 0.1})
 f1.addInput(params, 'bindTopLeft')
+f1.addInput(params, 'bindTopLeftPos', bindPosOptions)
 f1.addInput(params, 'bindTopRight')
+f1.addInput(params, 'bindTopRightPos', bindPosOptions)
 f1.addInput(params, 'bindBottomLeft')
+f1.addInput(params, 'bindBottomLeftPos', bindPosOptions)
 f1.addInput(params, 'bindBottomRight')
+f1.addInput(params, 'bindBottomRightPos', bindPosOptions)
 f1.addInput(params, 'hideBody')
 f1.addInput(params, 'rotateSpeed', {min: 0, max: 2000, step: 1})
 f1.addInput(params, 'color1')
@@ -76,17 +87,14 @@ f1.addInput({preset: 0}, 'preset', {
 
 pane.on('change', e => {
     if (e.presetKey === 'preset') {
-        Object.assign(params, presets[e.value])
+        params = Object.assign({}, paramsDefault, presets[e.value])
         pane.refresh();
     }
 })
 
 
 let render = () => {
-    let size = params.size
-
     let time = performance.now() * params.rotateSpeed / 200000
-    // let step = 20
     let segments = params.segments
     let x = params.centerX * canvas.width
     let y = params.centerY * canvas.height
@@ -124,19 +132,19 @@ let render = () => {
         let points = drawRotatedRect(ctx, xShifted, yShifted, width, height, angle, params.hideBody)
 
         if (params.bindTopLeft) {
-            ctx.moveTo(0, 0)
+            ctx.moveTo(params.bindTopLeftPos.x * canvas.width, params.bindTopLeftPos.y * canvas.height)
             ctx.lineTo(points[0][0], points[0][1])
         }
         if (params.bindTopRight) {
-            ctx.moveTo(canvas.width, 0)
+            ctx.moveTo(params.bindTopRightPos.x * canvas.width, params.bindTopRightPos.y * canvas.height)
             ctx.lineTo(points[1][0], points[1][1])
         }
         if (params.bindBottomRight) {
-            ctx.moveTo(canvas.width, canvas.height)
+            ctx.moveTo(params.bindBottomRightPos.x * canvas.width, params.bindBottomRightPos.y * canvas.height)
             ctx.lineTo(points[2][0], points[2][1])
         }
         if (params.bindBottomLeft) {
-            ctx.moveTo(0, canvas.height)
+            ctx.moveTo(params.bindBottomLeftPos.x * canvas.width, params.bindBottomLeftPos.y * canvas.height)
             ctx.lineTo(points[3][0], points[3][1])
         }
 
