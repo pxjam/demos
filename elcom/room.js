@@ -87,11 +87,10 @@ f1.addInput({preset: 0}, 'preset', {
 
 pane.on('change', e => {
     if (e.presetKey === 'preset') {
-        params = Object.assign({}, paramsDefault, presets[e.value])
-        pane.refresh();
+        Object.assign(params, paramsDefault, presets[e.value])
+        pane.refresh()
     }
 })
-
 
 let render = () => {
     let time = performance.now() * params.rotateSpeed / 200000
