@@ -1,5 +1,6 @@
 import * as THREE from 'three'
-import sputnik from './models/sputnik/sputnik.gltf'
+// import sputnik from './models/sputnik/sputnik.gltf'
+import globe from './models/globe.gltf'
 
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 // import {KMZLoader} from 'three/examples/jsm/loaders/KMZLoader.js'
@@ -13,10 +14,12 @@ init()
 
 function init() {
     scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x332288)
+    // scene.background = new THREE.Color(0x332288)
+    scene.background = new THREE.Color(0x999999)
 
-    const light = new THREE.DirectionalLight(0xffffff)
+    let light = new THREE.DirectionalLight(0xffffff)
     light.position.set(0.5, 1.0, 0.5).normalize()
+    light.intensity = 3
 
     scene.add(light)
 
@@ -28,20 +31,18 @@ function init() {
 
     scene.add(camera)
 
-    // const grid = new THREE.GridHelper(50, 50, 0xbbbbbb, 0x777777)
-    // scene.add(grid)
+    let grid = new THREE.GridHelper(50, 50, 0xbbbbbb, 0x777777)
+    scene.add(grid)
 
     renderer = new THREE.WebGLRenderer({antialias: true})
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
 
-    const loader = new GLTFLoader()
+    let loader = new GLTFLoader()
 
-    console.log(sputnik)
-    
     // loader.setPath('models/sputnik/')
-    loader.load(sputnik, function(gltf) {
+    loader.load(globe, function(gltf) {
         // loader.load('./DamagedHelmet.gltf', function(gltf) {
         gltf.scene.position.y = 1
         gltf.scene.scale.x = .03
@@ -53,7 +54,7 @@ function init() {
         render()
     })
 
-    const controls = new OrbitControls(camera, renderer.domElement)
+    let controls = new OrbitControls(camera, renderer.domElement)
     controls.addEventListener('change', render)
     controls.update()
 
