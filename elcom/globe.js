@@ -3,6 +3,7 @@ import presets from './presets-globe.json'
 import getCanvasMaxSize from './modules/getCanvasMaxSize'
 import {drawHalfEllipseBezierByCenter} from "./modules/drawEllipseBezier"
 
+const PI = Math.PI
 let canvas = document.querySelector('[data-canvas]')
 let ctx = canvas.getContext('2d')
 
@@ -15,7 +16,8 @@ let paramsDefault = {
     radiusX: 0.5,
     radiusY: 0.3,
     rotate: 0,
-    segments: 15,
+    segments: 6,
+    realPerspective: false,
     color1: {r: 0, g: 251, b: 235},
     color2: {r: 186, g: 0, b: 250},
     color3: {r: 250, g: 120, b: 20},
@@ -24,6 +26,7 @@ let paramsDefault = {
     gradRadius: 1,
     gradMiddlePoint: 0.5,
     globeCenter: {x: 0.1, y: -0.1},
+    rotateSpeed: 1,
     preset: 0
 }
 
@@ -38,6 +41,7 @@ f1.addSeparator()
 f1.addInput(params, 'radiusX', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'radiusY', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'rotate', {min: -180, max: 180, step: 0.1})
+f1.addInput(params, 'realPerspective')
 f1.addInput(params, 'segments', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'color1')
 f1.addInput(params, 'color2')
@@ -52,7 +56,7 @@ f1.addInput(params, 'globeCenter', {
     x: {min: -0.5, max: 0.5, step: 0.01},
     y: {min: -0.5, max: 0.5, step: 0.01}
 })
-
+f1.addInput(params, 'rotateSpeed', {min: 0, max: 2000, step: 1})
 f1.addInput({preset: 0}, 'preset', {
     options: presets.reduce((acc, val, i) => {
         acc['preset' + i] = i
@@ -68,10 +72,8 @@ pane.on('change', e => {
 })
 
 let shift = 0
-let step = 0.01
 
 let render = () => {
-    let time = performance.now() * params.rotateSpeed / 200000
     let segments = params.segments
     let canvasMaxSize = getCanvasMaxSize(canvas)
 
@@ -89,28 +91,46 @@ let render = () => {
 
     ctx.fillStyle = gradient
     ctx.strokeStyle = gradient
-    // ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     let globeCX = (.5 + params.globeCenter.x) * canvas.width
     let globeCY = (.5 + params.globeCenter.y) * canvas.height
     let globeRX = params.radiusX * canvasMaxSize
     let globeRY = params.radiusY * canvasMaxSize
-    // let rotation = params.rotate * Math.PI / 180
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    for (let i = 0; i <= segments * 2; i++) {
-        if (shift > 0 && i == segments * 2 || shift < 0 && i === 0) continue
-        let rx = globeRX - globeRX / segments * (i + shift)
-        drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, rx, globeRY)
+    if (!params.realPerspective) {
+        for (let i = 0; i <= segments; i++) {
+            if (shift > 0 && i === 0 || shift < 0 && i === segments) continue
+
+            let halfSegments = segments / 2
+            let rx = globeRX * (i - shift - halfSegments) / halfSegments
+            drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, rx, globeRY)
+        }
+    } else {
+        let segments2 = segments * 2 // with hidden on other side
+
+        for (let i = 0; i < segments2; i++) {
+            let thiSegmentAngle = 2 * PI / segments2 * i + shift
+            let cos = Math.cos(thiSegmentAngle)
+            let tan = Math.tan(thiSegmentAngle)
+            let rx = globeRX * cos
+
+            if (cos > 0 && tan > 0 || cos < 0 && tan < 0) {
+                drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, rx, globeRY)
+            }
+        }
     }
 
     drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, globeRX, globeRY)
     drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, -globeRX, globeRY)
 
-    shift += mouseX / 20
-    console.log(shift)
-    if (shift >= 1 || shift <= -1) shift = 0
+    let rotateSlowdown = (params.realPerspective) ? 0.004 : 0.01
+    shift += mouseX * rotateSlowdown
+
+    if (!params.realPerspective && (shift >= 1 || shift <= -1)) {
+        shift = 0
+    }
 
     requestAnimationFrame(render)
 }
@@ -122,7 +142,7 @@ function getMousePower(x, y) {
     let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
     let distanceFixed = distance / params.size // чтобы единица была на расстоянии в размер объекта
 
-    power = Math.E ** -(Math.PI / 2 * distanceFixed)
+    power = Math.E ** -(PI / 2 * distanceFixed)
 
     return power
 }
@@ -133,11 +153,10 @@ function resize() {
 
     windowWidth = window.innerWidth
     windowHeight = window.innerHeight
-
-    render()
 }
 
 resize()
+render()
 
 window.addEventListener('resize', resize)
 
@@ -145,7 +164,7 @@ window.addEventListener('mousemove', e => {
     mouseX = (e.clientX - canvas.offsetLeft - windowWidth / 2) / windowWidth
     mouseY = (e.clientY - canvas.offsetTop - windowHeight / 2) / windowHeight
 })
-window.addEventListener('click', render)
+// window.addEventListener('click', render)
 
 let saveBtn = document.querySelector('[data-save]')
 saveBtn.addEventListener('click', () => {
