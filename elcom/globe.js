@@ -12,7 +12,7 @@ let windowWidth = window.innerWidth
 let windowHeight = window.innerHeight
 
 let paramsDefault = {
-    radiusX: 0.23,
+    radiusX: 0.5,
     radiusY: 0.3,
     rotate: 0,
     segments: 15,
@@ -67,6 +67,9 @@ pane.on('change', e => {
     }
 })
 
+let shift = 0
+let step = 0.01
+
 let render = () => {
     let time = performance.now() * params.rotateSpeed / 200000
     let segments = params.segments
@@ -97,9 +100,17 @@ let render = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     for (let i = 0; i <= segments * 2; i++) {
-        let rx = globeRX - globeRX / segments * i
+        if (shift > 0 && i == segments * 2 || shift < 0 && i === 0) continue
+        let rx = globeRX - globeRX / segments * (i + shift)
         drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, rx, globeRY)
     }
+
+    drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, globeRX, globeRY)
+    drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, -globeRX, globeRY)
+
+    shift += mouseX / 20
+    console.log(shift)
+    if (shift >= 1 || shift <= -1) shift = 0
 
     requestAnimationFrame(render)
 }
