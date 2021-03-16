@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import globe from './models/sputnik/sputnik.gltf'
-// import globe from './models/globe.gltf'
+// import globe from './models/sputnik/sputnik.gltf'
+import globe from './models/globe.gltf'
 // import globe from './models/helmet/DamagedHelmet.gltf'
 
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
@@ -17,9 +17,8 @@ init()
 
 function init() {
     scene = new THREE.Scene()
-    // scene.background = new THREE.Color(0x332288)
-    scene.background = new THREE.Color(0x999999)
-
+    scene.background = new THREE.Color(0x000011)
+    // scene.background = new THREE.Color(0x999999)
 
     let light = new THREE.DirectionalLight(0xffffff)
     light.position.set(0.5, 1.0, 0.5).normalize()
@@ -35,8 +34,8 @@ function init() {
 
     scene.add(camera)
 
-    let grid = new THREE.GridHelper(50, 50, 0xbbbbbb, 0x777777)
-    scene.add(grid)
+    // let grid = new THREE.GridHelper(50, 50, 0xbbbbbb, 0x777777)
+    // scene.add(grid)
 
     renderer = new THREE.WebGLRenderer({antialias: true})
     renderer.setPixelRatio(window.devicePixelRatio)
