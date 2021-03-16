@@ -1,6 +1,5 @@
 import Tweakpane from "tweakpane"
 import drawRotatedRect from "./modules/drawRotatedRect2"
-import getGradCoords from "../canvas-mesh/modules/getGradCoords"
 import presets from './presets.json'
 import getCanvasMaxSize from "./modules/getCanvasMaxSize"
 
@@ -95,7 +94,7 @@ pane.on('change', (ev) => {
     if (ev.presetKey === "gradPreview" && ev.value) {
         resize()
     }
-});
+})
 
 f1.addInput({preset: 0}, 'preset', {
     options: presets.reduce((acc, val, i) => {

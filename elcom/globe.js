@@ -2,6 +2,7 @@ import Tweakpane from "tweakpane"
 import presets from './presets-globe.json'
 import getCanvasMaxSize from './modules/getCanvasMaxSize'
 import {drawHalfEllipseBezierByCenter} from "./modules/drawEllipseBezier"
+import ellipseLine from "./modules/ellipseLine"
 
 const PI = Math.PI
 let canvas = document.querySelector('[data-canvas]')
@@ -12,13 +13,18 @@ let mouseY = 0
 let windowWidth = window.innerWidth
 let windowHeight = window.innerHeight
 
+let globeCX
+let globeCY
+let globeRX
+let globeRY
+
 let paramsDefault = {
-    radiusX: 0.2,
-    radiusY: 0.2,
+    radiusX: 0.35,
+    radiusY: 0.25,
     rotate: 0,
-    segments: 6,
-    parallels: 3,
-    realPerspective: false,
+    segments: 7,
+    parallels: 4,
+    realPerspective: true,
     color1: {r: 0, g: 251, b: 235},
     color2: {r: 186, g: 0, b: 250},
     color3: {r: 250, g: 120, b: 20},
@@ -27,7 +33,8 @@ let paramsDefault = {
     gradRadius: 1,
     gradMiddlePoint: 0.5,
     globeCenter: {x: 0.01, y: -0.01},
-    rotateSpeed: 1,
+    rotateSpeed: 19,
+    gradPreview: false,
     preset: 0
 }
 
@@ -59,6 +66,12 @@ f1.addInput(params, 'globeCenter', {
     y: {min: -0.5, max: 0.5, step: 0.01}
 })
 f1.addInput(params, 'rotateSpeed', {min: 0, max: 200, step: 1})
+f1.addInput(params, 'gradPreview')
+pane.on('change', (ev) => {
+    if (ev.presetKey === "gradPreview" && ev.value) {
+        resize()
+    }
+})
 f1.addInput({preset: 0}, 'preset', {
     options: presets.reduce((acc, val, i) => {
         acc['preset' + i] = i
@@ -95,10 +108,10 @@ let render = () => {
     ctx.fillStyle = gradient
     ctx.strokeStyle = gradient
 
-    let globeCX = (.5 + params.globeCenter.x) * canvas.width
-    let globeCY = (.5 + params.globeCenter.y) * canvas.height
-    let globeRX = params.radiusX * canvasMaxSize
-    let globeRY = params.radiusY * canvasMaxSize
+    globeCX = (.5 + params.globeCenter.x) * canvas.width
+    globeCY = (.5 + params.globeCenter.y) * canvas.height
+    globeRX = params.radiusX * canvasMaxSize
+    globeRY = params.radiusY * canvasMaxSize
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -132,12 +145,30 @@ let render = () => {
     let stepY = globeRY * 2 / (parallels + 1)
 
     for (let i = 1; i <= parallels; i++) {
+        ctx.save()
         let y = y0 + i * stepY
         ctx.beginPath()
         ctx.moveTo(0, y)
-        ctx.lineTo(canvas.width, y)
+
+        let yc = globeCY
+        let ry = globeRY
+        let rx = globeRX
+        let xc = globeCX
+
+        //let xx = Math.sqrt(1 - ((y - yc) ** 2 / ry ** 2 + 1 ) / rx ** 2) + xc
+        // let xx = ry / rx * Math.sqrt((yc - ry) ** 2 + y ** 2)
+        //console.log(xx)
+
+        let xx = ellipseLine(globeCX, globeCY, globeRX, globeRY, 0, y, canvas.width, y)
+        //console.log(y, xx)
+
+        ctx.moveTo(xx[0] * canvas.width, y)
+        ctx.lineTo(xx[1] * canvas.width, y)
+
         ctx.stroke()
+
         ctx.closePath()
+        ctx.restore()
     }
 
     let rotateSlowdown = (params.realPerspective) ? 0.0004 : 0.001
@@ -145,6 +176,11 @@ let render = () => {
 
     if (!params.realPerspective && (shift >= 1 || shift <= -1)) {
         shift = 0
+    }
+
+    if (params.gradPreview) {
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fill()
     }
 
     requestAnimationFrame(render)
@@ -179,6 +215,15 @@ window.addEventListener('mousemove', e => {
     mouseX = (e.clientX - canvas.offsetLeft - windowWidth / 2) / windowWidth
     mouseY = (e.clientY - canvas.offsetTop - windowHeight / 2) / windowHeight
 })
+
+let lineXEllipse = (y) => {
+    let x1 = 0
+    let x2 = canvas.width
+
+    return ellipseLine(globeCX, globeCY, globeRX, globeRY, x1, y, x2, y)
+}
+
+window.lineXEllipse = lineXEllipse
 // window.addEventListener('click', render)
 
 let saveBtn = document.querySelector('[data-save]')
