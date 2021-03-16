@@ -1,6 +1,7 @@
 import * as THREE from 'three'
-// import sputnik from './models/sputnik/sputnik.gltf'
-import globe from './models/globe.gltf'
+import globe from './models/sputnik/sputnik.gltf'
+// import globe from './models/globe.gltf'
+// import globe from './models/helmet/DamagedHelmet.gltf'
 
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 // import {KMZLoader} from 'three/examples/jsm/loaders/KMZLoader.js'

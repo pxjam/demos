@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "3d-gltf": "parcel 3d-gltf/index.html",
-    "3d-gltf-build": "parcel build 3d-gltf/index.html --public-url ./ -d out/3d-gltf",
+    "3d-gltf-sputnik": "parcel 3d-gltf/sputnik.html",
+    "3d-gltf-build": "parcel build 3d-gltf/*.html --public-url ./ -d out/3d-gltf",
     "elcom-sphere": "parcel elcom/sphere.html",
     "elcom-globe": "parcel elcom/globe.html",
     "elcom-room": "parcel elcom/room.html",

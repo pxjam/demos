@@ -42,6 +42,7 @@ let paramsDefault = {
     bindBottomRightPos: {x: 1, y: 1},
     hideBody: false,
     rotateSpeed: 60,
+    mouseEffect: 'rotate',
     preset: 0
 }
 
@@ -93,6 +94,13 @@ f1.addInput(params, 'gradPreview')
 pane.on('change', (ev) => {
     if (ev.presetKey === "gradPreview" && ev.value) {
         resize()
+    }
+})
+
+f1.addInput(params, 'mouseEffect', {
+    options: {
+        'rotate' : 1,
+        'distort': 2
     }
 })
 
