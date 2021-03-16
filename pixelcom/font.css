@@ -1,9 +1,33 @@
 @font-face {
     font-family: PixelcomMedium;
-    src: url("./fonts/Pixelcom-Medium.woff2") format("woff2"),
-         url("./fonts/Pixelcom-Medium.woff") format("woff"),
+    /*src: url("./fonts/Pixelcom-Medium.woff2") format("woff2"),*/
+    src: url("./fonts/Pixelcom-Medium.woff") format("woff"),
          url("./fonts/Pixelcom-Medium.otf") format("opentype");
     font-weight: 500;
+}
+
+@font-face {
+    font-family: NeueMachinaMediumWoff;
+    src: url("./fonts/NeueMachina-Medium.woff") format("woff");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: NeueMachinaRegularWoff;
+    src: url("./fonts/NeueMachina-Regular.woff") format("woff");
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: NeueMachinaMediumTtf;
+    src: url("./fonts/NeueMachina-Medium.ttf") format("truetype");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: NeueMachinaRegularTtf;
+    src: url("./fonts/NeueMachina-Regular.ttf") format("truetype");
+    font-weight: 400;
 }
 
 html {
@@ -51,4 +75,20 @@ body {
 
 .up {
     text-transform: uppercase;
+}
+
+.medium-woff {
+    font-family: NeueMachinaMediumWoff, sans-serif;
+}
+
+.medium-ttf {
+    font-family: NeueMachinaMediumTtf, sans-serif;
+}
+
+.regular-woff {
+    font-family: NeueMachinaRegularWoff, sans-serif;
+}
+
+.regular-ttf {
+    font-family: NeueMachinaRegularTtf, sans-serif;
 }
