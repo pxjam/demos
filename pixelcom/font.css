@@ -1,8 +1,13 @@
 @font-face {
     font-family: PixelcomMedium;
-    /*src: url("./fonts/Pixelcom-Medium.woff2") format("woff2"),*/
     src: url("./fonts/Pixelcom-Medium.woff") format("woff"),
          url("./fonts/Pixelcom-Medium.otf") format("opentype");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: PixelcomMediumW2;
+    src: url("./fonts/Pixelcom-Medium.woff2") format("woff2");
     font-weight: 500;
 }
 
@@ -75,6 +80,10 @@ body {
 
 .up {
     text-transform: uppercase;
+}
+
+.pxcom-woff2 {
+    font-family: PixelcomMediumW2, sans-serif;
 }
 
 .medium-woff {
