@@ -19,7 +19,7 @@ let paramsDefault = {
     rotate: 0,
     segments: 6,
     parallels: 100,
-    realPerspective: false,
+    realPerspective: true,
     backfaceOpacity: 0.25,
     color1: {r: 0, g: 251, b: 235},
     color2: {r: 186, g: 0, b: 250},
