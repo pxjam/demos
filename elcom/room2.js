@@ -107,6 +107,8 @@ f1.addInput({preset: 0}, 'preset', {
     }, {})
 })
 
+document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
+
 pane.on('change', e => {
     if (e.presetKey === 'preset') {
         Object.assign(params, paramsDefault, presets[e.value])
