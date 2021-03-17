@@ -39,10 +39,11 @@ let paramsDefault = {
 }
 
 let params = Object.assign({}, paramsDefault)
-window.pane = new Tweakpane()
+window.pane = new Tweakpane({container: document.querySelector('[data-pane]')})
 
 const f1 = pane.addFolder({
     title: 'Настройки',
+    expanded: false
 })
 
 f1.addSeparator()
@@ -78,6 +79,10 @@ f1.addInput({preset: 0}, 'preset', {
         return acc
     }, {})
 })
+let saveBtn = f1.addButton({title: 'Copy preset'});
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())));
+
+document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
 
 pane.on('change', e => {
     if (e.presetKey === 'preset') {
@@ -206,6 +211,10 @@ function resize() {
     windowHeight = window.innerHeight
 }
 
+if(presets.length) {
+    Object.assign(params, paramsDefault, presets[0])
+    pane.refresh()
+}
 resize()
 render()
 
@@ -225,8 +234,3 @@ let lineXEllipse = (y) => {
 
 window.lineXEllipse = lineXEllipse
 // window.addEventListener('click', render)
-
-let saveBtn = document.querySelector('[data-save]')
-saveBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(JSON.stringify(pane.exportPreset()))
-})

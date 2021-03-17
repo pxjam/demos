@@ -50,6 +50,7 @@ window.pane = new Tweakpane({container: document.querySelector('[data-pane]')})
 
 const f1 = pane.addFolder({
     title: 'Настройки',
+    expanded: false
 })
 
 let bindPosOptions = {
@@ -106,6 +107,8 @@ f1.addInput({preset: 0}, 'preset', {
         return acc
     }, {})
 })
+let saveBtn = f1.addButton({title: 'Copy preset'});
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())));
 
 document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
 
@@ -270,8 +273,3 @@ window.addEventListener('mousemove', e => {
     mouseY = (e.clientY - canvas.offsetTop - windowHeight / 2) / windowHeight
 })
 window.addEventListener('click', render)
-
-let saveBtn = document.querySelector('[data-save]')
-saveBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(JSON.stringify(pane.exportPreset()))
-})
