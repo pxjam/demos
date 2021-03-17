@@ -46,7 +46,7 @@ let paramsDefault = {
 
 let params = Object.assign({}, paramsDefault)
 
-window.pane = new Tweakpane()
+window.pane = new Tweakpane({container: document.querySelector('[data-pane]')})
 
 const f1 = pane.addFolder({
     title: 'Настройки',
