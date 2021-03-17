@@ -96,6 +96,9 @@ f1.addInput({preset: 0}, 'preset', {
     }, {})
 })
 
+let saveBtn = f1.addButton({title: 'Copy preset'});
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())));
+
 document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
 
 pane.on('change', e => {
@@ -263,10 +266,5 @@ window.addEventListener('mousemove', e => {
     mouseY = (mouseAbsY - windowHeight / 2) / windowHeight
 })
 window.addEventListener('click', render)
-
-let saveBtn = document.querySelector('[data-save]')
-saveBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(JSON.stringify(pane.exportPreset()))
-})
 
 window.params = params

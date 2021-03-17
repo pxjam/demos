@@ -9,6 +9,7 @@
     "elcom-sphere": "parcel elcom/sphere.html",
     "elcom-globe": "parcel elcom/globe.html",
     "elcom-room": "parcel elcom/room.html",
+    "elcom-room2": "parcel elcom/room2.html",
     "elcom-room3": "parcel elcom/room3.html",
     "elcom-diamond": "parcel elcom/diamond.html",
     "elcom-build": "parcel build elcom/*.html --public-url ./ -d out/elcom",

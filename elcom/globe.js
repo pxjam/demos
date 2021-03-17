@@ -34,6 +34,7 @@ let paramsDefault = {
     gradMiddlePoint: 0.5,
     globeCenter: {x: 0.01, y: -0.01},
     rotateSpeed: 19,
+    backfaceOpacity: 0.25,
     gradPreview: false,
     preset: 0
 }
@@ -53,6 +54,7 @@ f1.addInput(params, 'rotate', {min: -180, max: 180, step: 0.1})
 f1.addInput(params, 'realPerspective')
 f1.addInput(params, 'segments', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'parallels', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'backfaceOpacity', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'color1')
 f1.addInput(params, 'color2')
 f1.addInput(params, 'color3')
@@ -79,8 +81,8 @@ f1.addInput({preset: 0}, 'preset', {
         return acc
     }, {})
 })
-let saveBtn = f1.addButton({title: 'Copy preset'});
-saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())));
+let saveBtn = f1.addButton({title: 'Copy preset'})
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())))
 
 document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
 
@@ -137,10 +139,15 @@ let render = () => {
             let tan = Math.tan(thiSegmentAngle)
             let rx = globeRX * cos
 
-            if (cos > 0 && tan > 0 || cos < 0 && tan < 0) {
-                drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, rx, globeRY)
+
+            if (cos >= 0 && tan >= 0 || cos <= 0 && tan <= 0) {
+                ctx.globalAlpha = 1
+            } else {
+                ctx.globalAlpha = params.backfaceOpacity
             }
+            drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, rx, globeRY)
         }
+        ctx.globalAlpha = 1
     }
 
     drawHalfEllipseBezierByCenter(ctx, globeCX, globeCY, globeRX, globeRY)
@@ -155,17 +162,7 @@ let render = () => {
         ctx.beginPath()
         ctx.moveTo(0, y)
 
-        let yc = globeCY
-        let ry = globeRY
-        let rx = globeRX
-        let xc = globeCX
-
-        //let xx = Math.sqrt(1 - ((y - yc) ** 2 / ry ** 2 + 1 ) / rx ** 2) + xc
-        // let xx = ry / rx * Math.sqrt((yc - ry) ** 2 + y ** 2)
-        //console.log(xx)
-
         let xx = ellipseLine(globeCX, globeCY, globeRX, globeRY, 0, y, canvas.width, y)
-        //console.log(y, xx)
 
         ctx.moveTo(xx[0] * canvas.width, y)
         ctx.lineTo(xx[1] * canvas.width, y)
@@ -191,18 +188,6 @@ let render = () => {
     requestAnimationFrame(render)
 }
 
-function getMousePower(x, y) {
-    let power
-    let distanceX = x - mouseX
-    let distanceY = y - mouseY
-    let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
-    let distanceFixed = distance / params.size // чтобы единица была на расстоянии в размер объекта
-
-    power = Math.E ** -(PI / 2 * distanceFixed)
-
-    return power
-}
-
 function resize() {
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
@@ -211,7 +196,7 @@ function resize() {
     windowHeight = window.innerHeight
 }
 
-if(presets.length) {
+if (presets.length) {
     Object.assign(params, paramsDefault, presets[0])
     pane.refresh()
 }
@@ -224,13 +209,4 @@ window.addEventListener('mousemove', e => {
     mouseX = (e.clientX - canvas.offsetLeft - windowWidth / 2) / windowWidth
     mouseY = (e.clientY - canvas.offsetTop - windowHeight / 2) / windowHeight
 })
-
-let lineXEllipse = (y) => {
-    let x1 = 0
-    let x2 = canvas.width
-
-    return ellipseLine(globeCX, globeCY, globeRX, globeRY, x1, y, x2, y)
-}
-
-window.lineXEllipse = lineXEllipse
 // window.addEventListener('click', render)
