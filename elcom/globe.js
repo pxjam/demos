@@ -1,5 +1,5 @@
 import Tweakpane from "tweakpane"
-import presets from './presets-globe.json'
+import presets from './presets-globe.js'
 import getCanvasMaxSize from './modules/getCanvasMaxSize'
 import {drawHalfEllipseBezierByCenter} from "./modules/drawEllipseBezier"
 import ellipseLine from "./modules/ellipseLine"

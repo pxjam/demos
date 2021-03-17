@@ -1,6 +1,6 @@
 import Tweakpane from "tweakpane"
 import drawRotatedTriangle from "./modules/drawRotatedTriangle"
-import presets from './presets-room2.json'
+import presets from './presets-room2.js'
 import getCanvasMaxSize from "./modules/getCanvasMaxSize"
 
 let canvas = document.querySelector('[data-canvas]')

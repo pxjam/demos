@@ -1,0 +1,3 @@
+export default [
+  {"radiusX":0.35,"radiusY":0.25,"rotate":0,"realPerspective":true,"segments":15,"parallels":4,"backfaceOpacity":0.25,"color1":{"r":77.27579365079364,"g":251.8125,"b":249.12222589217487},"color2":{"r":128.3520552609785,"g":60.011178180192275,"b":255},"color3":{"r":255,"g":112.30717639168343,"b":157.10805342687692},"gradCenter":{"x":0.5,"y":0.5},"gradRadius":0.84,"gradMiddlePoint":0.71,"globeCenter":{"x":0.12,"y":-0.16},"rotateSpeed":12,"gradPreview":false,"preset":0}
+]

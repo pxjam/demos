@@ -1,5 +1,5 @@
 import Tweakpane from "tweakpane"
-import presets from './presets-diamond.json'
+import presets from './presets-diamond.js'
 import getCanvasMaxSize from './modules/getCanvasMaxSize'
 
 const PI = Math.PI
@@ -20,6 +20,7 @@ let paramsDefault = {
     segments: 6,
     parallels: 100,
     realPerspective: false,
+    backfaceOpacity: 0.25,
     color1: {r: 0, g: 251, b: 235},
     color2: {r: 186, g: 0, b: 250},
     color3: {r: 250, g: 120, b: 20},
@@ -48,6 +49,7 @@ f1.addInput(params, 'rotate', {min: -180, max: 180, step: 0.1})
 f1.addInput(params, 'realPerspective')
 f1.addInput(params, 'segments', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'parallels', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'backfaceOpacity', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'color1')
 f1.addInput(params, 'color2')
 f1.addInput(params, 'color3')
@@ -128,8 +130,12 @@ let render = () => {
             let rx = meshRX * cos
 
             if (cos > 0 && tan > 0 || cos < 0 && tan < 0) {
-                drawDiamond(ctx, meshCX, meshCY, rx, meshRY)
+                ctx.globalAlpha = params.backfaceOpacity
+            } else {
+                ctx.globalAlpha = 1
             }
+            drawDiamond(ctx, meshCX, meshCY, rx, meshRY)
+            ctx.globalAlpha = 1
         }
     }
 
