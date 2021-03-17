@@ -160,8 +160,8 @@ let render = () => {
         ctx.restore()
     }
 
-    let rotateSlowdown = (params.realPerspective) ? 0.004 : 0.01
-    shift += mouseX * rotateSlowdown
+    let rotateSlowdown = (params.realPerspective) ? 0.0004 : 0.001
+    shift += mouseX * rotateSlowdown * params.rotateSpeed
 
     if (!params.realPerspective && (shift >= 1 || shift <= -1)) {
         shift = 0
