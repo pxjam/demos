@@ -10,6 +10,7 @@
     "elcom-globe": "parcel elcom/globe.html",
     "elcom-room": "parcel elcom/room.html",
     "elcom-room3": "parcel elcom/room3.html",
+    "elcom-diamond": "parcel elcom/diamond.html",
     "elcom-build": "parcel build elcom/*.html --public-url ./ -d out/elcom",
     "canvas-mesh": "parcel canvas-mesh/index.html",
     "canvas-mesh-build": "parcel build canvas-mesh/index.html --public-url ./ -d out/canvas-mesh",
