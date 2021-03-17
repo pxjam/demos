@@ -1,12 +1,13 @@
 import Tweakpane from "tweakpane"
 import presets from './presets-diamond.json'
 import getCanvasMaxSize from './modules/getCanvasMaxSize'
-import { drawDiamond } from "./modules/drawDiamond"
 
 const PI = Math.PI
 let canvas = document.querySelector('[data-canvas]')
 let ctx = canvas.getContext('2d')
 
+let mouseAbsX = 0
+let mouseAbsY = 0
 let mouseX = 0
 let mouseY = 0
 let windowWidth = window.innerWidth
@@ -28,6 +29,7 @@ let paramsDefault = {
     gradMiddlePoint: 0.5,
     meshCenter: {x: 0.1, y: -0.1},
     rotateSpeed: 1,
+    mouseRadius: 150,
     preset: 0
 }
 
@@ -60,14 +62,15 @@ f1.addInput(params, 'meshCenter', {
     y: {min: -0.5, max: 0.5, step: 0.01}
 })
 f1.addInput(params, 'rotateSpeed', {min: 0, max: 2000, step: 1})
+f1.addInput(params, 'mouseRadius', {min: 0, max: 2000, step: 1})
 f1.addInput({preset: 0}, 'preset', {
     options: presets.reduce((acc, val, i) => {
         acc['preset' + i] = i
         return acc
     }, {})
 })
-let saveBtn = f1.addButton({title: 'Copy preset'});
-saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())));
+let saveBtn = f1.addButton({title: 'Copy preset'})
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())))
 
 document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
 
@@ -152,9 +155,9 @@ let render = () => {
         }
 
         ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.moveTo(x1, y)
-        ctx.lineTo(x2, y)
+        ctx.moveTo(...mouseShift(0, y))
+        ctx.moveTo(...mouseShift(x1, y))
+        ctx.lineTo(...mouseShift(x2, y))
         ctx.stroke()
         ctx.closePath()
         ctx.restore()
@@ -170,16 +173,29 @@ let render = () => {
     requestAnimationFrame(render)
 }
 
-function getMousePower(x, y) {
+function drawDiamond(ctx, cx, cy, rx, ry) {
+    ctx.beginPath()
+    ctx.moveTo(...mouseShift(cx, cy - ry))
+    ctx.lineTo(...mouseShift(cx - rx, cy))
+    ctx.lineTo(...mouseShift(cx, cy + ry))
+    ctx.stroke()
+    ctx.closePath()
+}
+
+function mouseShift(x, y) {
+    return [x, y]
     let power
-    let distanceX = x - mouseX
-    let distanceY = y - mouseY
+    let distanceX = x - mouseAbsX
+    let distanceY = y - mouseAbsY
     let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
-    let distanceFixed = distance / params.size // чтобы единица была на расстоянии в размер объекта
 
-    power = Math.E ** -(PI / 2 * distanceFixed)
+    let distanceFixed = distance / params.mouseRadius
+    power = Math.E ** -(Math.PI / 2 * distanceFixed)
 
-    return power
+    let shiftX = distanceX * power
+    let shiftY = distanceY * power
+
+    return [x + shiftX, y + shiftY]
 }
 
 function resize() {
@@ -190,7 +206,7 @@ function resize() {
     windowHeight = window.innerHeight
 }
 
-if(presets.length) {
+if (presets.length) {
     Object.assign(params, paramsDefault, presets[0])
     pane.refresh()
 }
@@ -200,6 +216,8 @@ render()
 window.addEventListener('resize', resize)
 
 window.addEventListener('mousemove', e => {
+    mouseAbsX = e.clientX - canvas.offsetLeft
+    mouseAbsY = e.clientY - canvas.offsetTop
     mouseX = (e.clientX - canvas.offsetLeft - windowWidth / 2) / windowWidth
     mouseY = (e.clientY - canvas.offsetTop - windowHeight / 2) / windowHeight
 })
