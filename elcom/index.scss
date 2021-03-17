@@ -71,3 +71,9 @@ body {
     bottom: 30px;
     right: 30px;
 }
+
+[data-pane] {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+}

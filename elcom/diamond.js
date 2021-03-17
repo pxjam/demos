@@ -1,7 +1,6 @@
 import Tweakpane from "tweakpane"
-import presets from './presets-globe.json'
+import presets from './presets-diamond.json'
 import getCanvasMaxSize from './modules/getCanvasMaxSize'
-import {drawHalfEllipseBezierByCenter} from "./modules/drawEllipseBezier"
 import { drawDiamond } from "./modules/drawDiamond"
 
 const PI = Math.PI
@@ -18,6 +17,7 @@ let paramsDefault = {
     radiusY: 0.3,
     rotate: 0,
     segments: 6,
+    parallels: 100,
     realPerspective: false,
     color1: {r: 0, g: 251, b: 235},
     color2: {r: 186, g: 0, b: 250},
@@ -26,16 +26,17 @@ let paramsDefault = {
     gradCenter: {x: 0.5, y: 0.5},
     gradRadius: 1,
     gradMiddlePoint: 0.5,
-    globeCenter: {x: 0.1, y: -0.1},
+    meshCenter: {x: 0.1, y: -0.1},
     rotateSpeed: 1,
     preset: 0
 }
 
 let params = Object.assign({}, paramsDefault)
-window.pane = new Tweakpane()
+window.pane = new Tweakpane({container: document.querySelector('[data-pane]')})
 
 const f1 = pane.addFolder({
     title: 'Настройки',
+    expanded: false
 })
 
 f1.addSeparator()
@@ -44,6 +45,7 @@ f1.addInput(params, 'radiusY', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'rotate', {min: -180, max: 180, step: 0.1})
 f1.addInput(params, 'realPerspective')
 f1.addInput(params, 'segments', {min: 1, max: 100, step: 1})
+f1.addInput(params, 'parallels', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'color1')
 f1.addInput(params, 'color2')
 f1.addInput(params, 'color3')
@@ -53,7 +55,7 @@ f1.addInput(params, 'gradCenter', {
 })
 f1.addInput(params, 'gradRadius', {min: 0, max: 2, step: 0.01})
 f1.addInput(params, 'gradMiddlePoint', {min: 0, max: 1, step: 0.01})
-f1.addInput(params, 'globeCenter', {
+f1.addInput(params, 'meshCenter', {
     x: {min: -0.5, max: 0.5, step: 0.01},
     y: {min: -0.5, max: 0.5, step: 0.01}
 })
@@ -64,6 +66,10 @@ f1.addInput({preset: 0}, 'preset', {
         return acc
     }, {})
 })
+let saveBtn = f1.addButton({title: 'Copy preset'});
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())));
+
+document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
 
 pane.on('change', e => {
     if (e.presetKey === 'preset') {
@@ -76,6 +82,7 @@ let shift = 0
 
 let render = () => {
     let segments = params.segments
+    let parallels = params.parallels
     let canvasMaxSize = getCanvasMaxSize(canvas)
 
     let gradCX = (0.5 + params.gradCenter.x) * canvas.width
@@ -93,10 +100,10 @@ let render = () => {
     ctx.fillStyle = gradient
     ctx.strokeStyle = gradient
 
-    let globeCX = (.5 + params.globeCenter.x) * canvas.width
-    let globeCY = (.5 + params.globeCenter.y) * canvas.height
-    let globeRX = params.radiusX * canvasMaxSize
-    let globeRY = params.radiusY * canvasMaxSize
+    let meshCX = (.5 + params.meshCenter.x) * canvas.width
+    let meshCY = (.5 + params.meshCenter.y) * canvas.height
+    let meshRX = params.radiusX * canvasMaxSize
+    let meshRY = params.radiusY * canvasMaxSize
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -105,8 +112,8 @@ let render = () => {
             if (shift > 0 && i === 0 || shift < 0 && i === segments) continue
 
             let halfSegments = segments / 2
-            let rx = globeRX * (i - shift - halfSegments) / halfSegments
-            drawDiamond(ctx, globeCX, globeCY, rx, globeRY)
+            let rx = meshRX * (i - shift - halfSegments) / halfSegments
+            drawDiamond(ctx, meshCX, meshCY, rx, meshRY)
         }
     } else {
         let segments2 = segments * 2 // with hidden on other side
@@ -115,16 +122,43 @@ let render = () => {
             let thiSegmentAngle = 2 * PI / segments2 * i + shift
             let cos = Math.cos(thiSegmentAngle)
             let tan = Math.tan(thiSegmentAngle)
-            let rx = globeRX * cos
+            let rx = meshRX * cos
 
             if (cos > 0 && tan > 0 || cos < 0 && tan < 0) {
-                drawDiamond(ctx, globeCX, globeCY, rx, globeRY)
+                drawDiamond(ctx, meshCX, meshCY, rx, meshRY)
             }
         }
     }
 
-    drawDiamond(ctx, globeCX, globeCY, globeRX, globeRY)
-    drawDiamond(ctx, globeCX, globeCY, -globeRX, globeRY)
+    drawDiamond(ctx, meshCX, meshCY, meshRX, meshRY)
+    drawDiamond(ctx, meshCX, meshCY, -meshRX, meshRY)
+
+    let y0 = meshCY - meshRY
+    let x0 = meshCX
+    let stepY = meshRY * 2 / (parallels + 1)
+    let stepX = meshRX * 2 / (parallels + 1)
+
+    for (let i = 1; i <= parallels + 1; i++) {
+        ctx.save()
+        let y = y0 + i * stepY
+        let x1, x2
+
+        if (i <= parallels / 2) {
+            x1 = x0 - i * stepX
+            x2 = x0 + i * stepX
+        } else {
+            x1 = x0 - (parallels + 1 - i) * stepX
+            x2 = x0 + (parallels + 1 - i) * stepX
+        }
+
+        ctx.beginPath()
+        ctx.moveTo(0, y)
+        ctx.moveTo(x1, y)
+        ctx.lineTo(x2, y)
+        ctx.stroke()
+        ctx.closePath()
+        ctx.restore()
+    }
 
     let rotateSlowdown = (params.realPerspective) ? 0.004 : 0.01
     shift += mouseX * rotateSlowdown
@@ -156,6 +190,10 @@ function resize() {
     windowHeight = window.innerHeight
 }
 
+if(presets.length) {
+    Object.assign(params, paramsDefault, presets[0])
+    pane.refresh()
+}
 resize()
 render()
 
@@ -166,8 +204,3 @@ window.addEventListener('mousemove', e => {
     mouseY = (e.clientY - canvas.offsetTop - windowHeight / 2) / windowHeight
 })
 // window.addEventListener('click', render)
-
-let saveBtn = document.querySelector('[data-save]')
-saveBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(JSON.stringify(pane.exportPreset()))
-})
