@@ -1,6 +1,6 @@
 import Tweakpane from "tweakpane"
 import getGradCoords from "./modules/getGradCoords"
-import drawRotatedRect2 from "./modules/drawRotatedRect2"
+import drawRotatedRect from "./modules/drawRotatedRect"
 
 let pane = new Tweakpane
 
@@ -96,7 +96,7 @@ let drawRect = () => {
         let width = size * perspectiveFactor * (1 + params.maxPower * power)
         let height = width
 
-        let points = drawRotatedRect2(ctx, x, y, width, height, time + i, phantom)
+        let points = drawRotatedRect(ctx, x, y, width, height, time + i, phantom)
 
         if (prevPoints && [1, 2, 3].includes(mode)) {
             for (let i = 0; i < 4; i++) {

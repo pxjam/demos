@@ -1,5 +1,5 @@
 import Tweakpane from "tweakpane"
-// import drawRotatedRect from "./modules/drawRotatedRect2"
+// import drawRotatedRect from "./modules/drawRotatedRect"
 import presets from './presets.json'
 import getCanvasMaxSize from "./modules/getCanvasMaxSize"
 
