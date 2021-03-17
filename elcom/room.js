@@ -1,5 +1,5 @@
 import Tweakpane from "tweakpane"
-import drawRotatedRect from "./modules/drawRotatedRect2"
+// import drawRotatedRect from "./modules/drawRotatedRect2"
 import presets from './presets.json'
 import getCanvasMaxSize from "./modules/getCanvasMaxSize"
 
@@ -8,6 +8,8 @@ let ctx = canvas.getContext('2d')
 
 let mouseX = 0
 let mouseY = 0
+let mouseAbsX = 0
+let mouseAbsY = 0
 let windowWidth = window.innerWidth
 let windowHeight = window.innerHeight
 
@@ -47,6 +49,8 @@ let paramsDefault = {
 }
 
 let params = Object.assign({}, paramsDefault)
+
+let size = canvas.width * params.width
 
 window.pane = new Tweakpane()
 
@@ -99,8 +103,8 @@ pane.on('change', (ev) => {
 
 f1.addInput(params, 'mouseEffect', {
     options: {
-        'rotate' : 1,
-        'distort': 2
+        rotate: 'rotate',
+        push: 'push'
     }
 })
 
@@ -170,12 +174,22 @@ let render = () => {
             let width = frontWidth - (frontWidth - backWidth) * segmentPower
             let height = frontHeight - (frontHeight - backHeight) * segmentPower
 
-            let xShifted = x - mouseX * maxOffsetX * (i - segments / 2) / segments
-            let yShifted = y - mouseY * maxOffsetY * (i - segments / 2) / segments
+            let segmentX = x
+            let segmentY = y
 
-            let angle = 30 * Math.sin(time + i * params.twist)
+            if (params.mouseEffect === 'rotate') {
+                segmentX = x - mouseX * maxOffsetX * (i - segments / 2) / segments
+                segmentY = y - mouseY * maxOffsetY * (i - segments / 2) / segments
+            }
+            let degrees = 30 * Math.sin(time + i * params.twist)
 
-            let points = drawRotatedRect(ctx, xShifted, yShifted, width, height, angle, params.hideBody)
+            let points = drawRotatedRect({
+                ctx,
+                cx: segmentX,
+                cy: segmentY,
+                width, height, degrees,
+                phantom: params.hideBody
+            })
 
             if (params.bindTopLeft) {
                 ctx.moveTo(params.bindTopLeftPos.x * canvas.width, params.bindTopLeftPos.y * canvas.height)
@@ -226,6 +240,15 @@ let render = () => {
                             let x1 = backPointX + backDistanceX * j / stripesCount
                             let y1 = backPointY + backDistanceY * j / stripesCount
 
+                            // if (params.mouseEffect === 'push') {
+                            //     let xy0 = getMousePower(x0, y0)
+                            //     let xy1 = getMousePower(x1, y1)
+                            //     x0 = xy0[0]
+                            //     y0 = xy0[1]
+                            //     x1 = xy1[0]
+                            //     y1 = xy1[1]
+                            // }
+
                             ctx.moveTo(x0, y0)
                             ctx.lineTo(x1, y1)
                         }
@@ -243,15 +266,75 @@ let render = () => {
     requestAnimationFrame(render)
 }
 
-function getMousePower(x, y) {
+function getMouseShift(x, y, log) {
     let power
-    let distanceX = x - mouseX
-    let distanceY = y - mouseY
+    let distanceX = x - mouseAbsX
+    //console.log('distanceX', distanceX)
+    let distanceY = y - mouseAbsY
     let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
-    let distanceFixed = distance / params.size // чтобы единица была на расстоянии в размер объекта
+
+    if (log) console.log(distance)
+    let distanceFixed = distance / 200 // чтобы единица была на расстоянии в размер объекта
+    // let distanceFixed = distance // чтобы единица была на расстоянии в размер объекта
 
     power = Math.E ** -(Math.PI / 2 * distanceFixed)
-    return power
+
+    let shiftX = distanceX * power
+    let shiftY = distanceY * power
+
+    return [shiftX, shiftY]
+}
+
+function drawRotatedRect({ctx, cx, cy, width, height, degrees, phantom, shiftX, shiftY}) {
+    ctx.beginPath()
+
+    let theta = degrees * Math.PI / 180
+
+    let w2 = width / 2
+    let h2 = height / 2
+
+    let sin = Math.sin(theta)
+    let cos = Math.cos(theta)
+
+    function rotatePoint(pointX, pointY) {
+        return [
+            cos * (pointX - cx) - sin * (pointY - cy) + cx,
+            sin * (pointX - cx) + cos * (pointY - cy) + cy
+        ]
+    }
+
+    let points = [
+        rotatePoint(cx - w2, cy - h2),
+        rotatePoint(cx + w2, cy - h2),
+        rotatePoint(cx + w2, cy + h2),
+        rotatePoint(cx - w2, cy + h2)
+    ]
+
+    // console.log('shiftY', shiftY)
+    // points.map(point => [point[0] + shiftX, point[1] + shiftY])
+
+    if (params.mouseEffect === 'push') {
+        points.forEach(point => {
+            let shift = getMouseShift(point[0], point[1])
+            shiftX = shift[0]
+            shiftY = shift[1]
+            //if (i === 0) console.log(mouseX, mouseY)
+
+            point[0] += shiftX
+            point[1] += shiftY
+        })
+    }
+
+    if (!phantom) {
+        ctx.moveTo(...points[0])
+        ctx.lineTo(...points[1])
+        ctx.lineTo(...points[2])
+        ctx.lineTo(...points[3])
+        ctx.lineTo(...points[0])
+    }
+    ctx.closePath()
+
+    return points
 }
 
 function resize() {
@@ -260,6 +343,8 @@ function resize() {
 
     windowWidth = window.innerWidth
     windowHeight = window.innerHeight
+
+    size = canvas.width * params.width
 }
 
 resize()
@@ -268,8 +353,10 @@ render()
 window.addEventListener('resize', resize)
 
 window.addEventListener('mousemove', e => {
-    mouseX = (e.clientX - canvas.offsetLeft - windowWidth / 2) / windowWidth
-    mouseY = (e.clientY - canvas.offsetTop - windowHeight / 2) / windowHeight
+    mouseAbsX = e.clientX - canvas.offsetLeft
+    mouseAbsY = e.clientY - canvas.offsetTop
+    mouseX = (mouseAbsX - windowWidth / 2) / windowWidth
+    mouseY = (mouseAbsY - windowHeight / 2) / windowHeight
 })
 window.addEventListener('click', render)
 
@@ -277,3 +364,5 @@ let saveBtn = document.querySelector('[data-save]')
 saveBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(JSON.stringify(pane.exportPreset()))
 })
+
+window.params = params
