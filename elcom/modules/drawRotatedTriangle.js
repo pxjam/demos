@@ -16,21 +16,16 @@ export default function(ctx, cx, cy, width, height, degrees, phantom) {
         ]
     }
 
-    // ctx.moveTo(cx, cy)
-    // ctx.lineTo(cx + 2, cy + 2)
-
     let points = [
-        rotatePoint(cx - w2, cy - h2),
-        rotatePoint(cx + w2, cy - h2),
+        rotatePoint(cx - w2, cy + h2),
         rotatePoint(cx + w2, cy + h2),
-        rotatePoint(cx - w2, cy + h2)
+        rotatePoint(cx, cy - h2),
     ]
 
     if (!phantom) {
         ctx.moveTo(...points[0])
         ctx.lineTo(...points[1])
         ctx.lineTo(...points[2])
-        ctx.lineTo(...points[3])
         ctx.lineTo(...points[0])
     }
     ctx.closePath()
