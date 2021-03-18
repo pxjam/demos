@@ -1,6 +1,6 @@
 import Tweakpane from "tweakpane"
 // import drawRotatedRect from "./modules/drawRotatedRect"
-import presets from './presets.json'
+import presets from './presets.js'
 import getCanvasMaxSize from "./modules/getCanvasMaxSize"
 
 let canvas = document.querySelector('[data-canvas]')

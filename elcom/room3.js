@@ -19,13 +19,14 @@ let paramsDefault = {
     width: 1.00,
     height: 0.78,
     backSize: 0.3,
-    mouseRotate: 0.78,
     segments: 15,
     crossLines: 5,
     color1: {r: 186, g: 0, b: 250},
     color2: {r: 0, g: 126, b: 255},
     color3: {r: 0, g: 251, b: 235},
     twist: .1,
+    rotate: 30,
+    fixFirstSegment: true,
     maxPower: .3,
     minOpacity: 0,
     gradCenter: {x: 0.5, y: 0.5},
@@ -35,11 +36,11 @@ let paramsDefault = {
     gradDirX: "right",
     gradDirY: "top",
     rotateSpeed: 60,
+    mouseRotate: 0.78,
     mouseRadius: 150,
     mousePower: 0.8,
     // mouseEffect: 'rotate',
-    mouseEffect: 'push',
-    preset: 0
+    mouseEffect: 'push'
 }
 
 let params = Object.assign({}, paramsDefault)
@@ -63,6 +64,8 @@ f1.addInput(params, 'crossLines', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'backSize', {min: 0, max: 1, step: 0.05})
 f1.addInput(params, 'mouseRotate', {min: 0, max: 1, step: 0.05})
 f1.addInput(params, 'twist', {min: 0, max: Math.PI, step: 0.01})
+f1.addInput(params, 'rotate', {min: 0, max: 180, step: 0.1})
+f1.addInput(params, 'fixFirstSegment')
 f1.addInput(params, 'minOpacity', {min: 0, max: 1, step: 0.1})
 f1.addInput(params, 'rotateSpeed', {min: 0, max: 2000, step: 1})
 f1.addInput(params, 'color1')
@@ -157,7 +160,11 @@ let render = () => {
                 segmentCX = x - mouseX * maxOffsetX * (segmentId - segments / 2) / segments
                 segmentCY = y - mouseY * maxOffsetY * (segmentId - segments / 2) / segments
             }
-            let degrees = 30 * Math.sin(time + segmentId * params.twist)
+            // let degrees = 30 * Math.sin(time + segmentId * params.twist)
+
+            let rotateFactor = (params.fixFirstSegment) ? segmentId : params.rotate
+
+            let degrees = rotateFactor * Math.sin(time + segmentId * params.twist)
 
             ctx.beginPath()
             let theta = degrees * Math.PI / 180
