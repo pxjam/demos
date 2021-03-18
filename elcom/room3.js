@@ -112,6 +112,11 @@ pane.on('change', e => {
     }
 })
 
+if (presets.length) {
+    Object.assign(params, paramsDefault, presets[0])
+    pane.refresh()
+}
+
 let render = () => {
     let time = performance.now() * params.rotateSpeed / 200000
     let canvasMaxSize = getCanvasMaxSize(canvas)

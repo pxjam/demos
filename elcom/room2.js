@@ -119,6 +119,11 @@ pane.on('change', e => {
     }
 })
 
+if (presets.length) {
+    Object.assign(params, paramsDefault, presets[0])
+    pane.refresh()
+}
+
 let render = () => {
     // console.log('render')
     let time = performance.now() * params.rotateSpeed / 200000
@@ -259,10 +264,6 @@ function resize() {
     windowHeight = window.innerHeight
 }
 
-if(presets.length) {
-    Object.assign(params, paramsDefault, presets[0])
-    pane.refresh()
-}
 resize()
 render()
 
