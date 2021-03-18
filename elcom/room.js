@@ -52,7 +52,7 @@ let params = Object.assign({}, paramsDefault)
 
 let size = canvas.width * params.width
 
-window.pane = new Tweakpane()
+window.pane = new Tweakpane({container: document.querySelector('[data-pane]')})
 
 const f1 = pane.addFolder({
     title: 'Настройки',
