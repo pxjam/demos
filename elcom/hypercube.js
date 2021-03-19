@@ -1,7 +1,6 @@
 import {multiply} from 'mathjs'
-import mouse from './modules/mouse'
 // import {points, edges} from "./3d/chrystal"
-import Cube from "./3d/Cube"
+import Chrystal from "./3d/Chrystal"
 
 let sin = Math.sin
 let cos = Math.cos
@@ -15,7 +14,12 @@ let params = {
     cameraDistance: 5
 }
 
-let model = new Cube()
+// let model = new Cube()
+let model = new Chrystal({
+    height: 2,
+    radius: 2,
+    segments: 10
+})
 let points = model.points
 let edges = model.edges
 
