@@ -1,5 +1,7 @@
 import {multiply} from 'mathjs'
 import mouse from './modules/mouse'
+// import {points, edges} from "./3d/chrystal"
+import Cube from "./3d/Cube"
 
 let sin = Math.sin
 let cos = Math.cos
@@ -13,81 +15,9 @@ let params = {
     cameraDistance: 5
 }
 
-let cube = [
-    [-1, -1, -1],
-    [-1, 1, -1],
-    [1, -1, -1],
-    [1, 1, -1],
-    [-1, -1, 1],
-    [-1, 1, 1],
-    [1, -1, 1],
-    [1, 1, 1]
-]
-
-let cubeEdges = [
-    [0, 1],
-    [0, 2],
-    [0, 4],
-    [1, 3],
-    [1, 5],
-    [2, 3],
-    [2, 6],
-    [3, 7],
-    [4, 5],
-    [4, 6],
-    [5, 7],
-    [6, 7]
-]
-
-let diamondPoints = [
-    [0, 1.5, 0],
-    [1, 0, 1],
-    [1, 0, -1],
-    [-1, 0, -1],
-    [-1, 0, 1],
-    [0, -1.5, 0]
-]
-
-let diamondEdges = [
-    [0, 1],
-    [0, 2],
-    [0, 3],
-    [0, 4],
-    [1,2],
-    [2,3],
-    [3,4],
-    [4,1],
-    [5, 1],
-    [5, 2],
-    [5, 3],
-    [5, 4]
-]
-
-// let diamondTop = [0 ,0 ,1]
-// let diamondBottom = [0 ,0 ,-1]
-// let diamondRadius = 1
-// let diamondSliceCount = 2
-//
-// let getSlicePoints = (angle) => {
-//     return [
-//         diamondTop,
-//         [diamondRadius * cos(angle), diamondRadius * sin(angle), 0],
-//         [diamondRadius * cos(-angle), diamondRadius * sin(-angle), 0],
-//         diamondBottom
-//     ]
-// }
-//
-// let diamondSlices = Array(diamondSliceCount).forEach()
-
-// let diamondPoints = diamondSlices.forEach(slice => {
-//
-// })
-
-// let points = cubePoints
-let points = diamondPoints
-
-// let edges = cubeEdges
-let edges = diamondEdges
+let model = new Cube()
+let points = model.points
+let edges = model.edges
 
 function projection3D(points3D, rotationX, rotationY,) {
 
