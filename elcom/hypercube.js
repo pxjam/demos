@@ -1,6 +1,7 @@
 import {multiply} from 'mathjs'
+import mouse from "./modules/mouse"
 // import {points, edges} from "./3d/chrystal"
-import Chrystal from "./3d/Chrystal"
+import Cube from "./3d/Cube"
 
 let sin = Math.sin
 let cos = Math.cos
@@ -11,15 +12,17 @@ canvas.width = window.innerWidth
 canvas.height = window.innerHeight
 
 let params = {
-    cameraDistance: 5
+    orthographic: false,
+    distance: 4,
+    perspective: 2
 }
 
-// let model = new Cube()
-let model = new Chrystal({
-    height: 2,
-    radius: 2,
-    segments: 10
-})
+let model = new Cube()
+// let model = new Chrystal({
+//     height: 2,
+//     radius: 2,
+//     segments: 10
+// })
 let points = model.points
 let edges = model.edges
 
@@ -39,9 +42,7 @@ function projection3D(points3D, rotationX, rotationY,) {
         let pointRotatedByY = multiply(
             [
                 [cos(rotationY), 0, sin(rotationY)],
-                //[-sin(rotation), 0, -cos(rotation)],
                 [0, 1, 0],
-                // [0, 1, 0],
                 [-sin(rotationY), 0, cos(rotationY)]
             ],
             pointRotatedByX
@@ -53,11 +54,14 @@ function projection3D(points3D, rotationX, rotationY,) {
     let points2D = []
 
     rotatedPoints.forEach(point => {
+        let correction = params.distance / params.perspective
 
-        let scale = 1 / (params.cameraDistance - point[2])
+        let scale = (params.orthographic)
+            ? 1 / params.distance
+            : 1 / (params.perspective - point[2])
 
-        let scaledX = point[0] * scale
-        let scaledY = point[1] * scale
+        let scaledX = point[0] * scale / correction / params.distance
+        let scaledY = point[1] * scale / correction / params.distance
         points2D.push([scaledX, scaledY])
 
     })
@@ -79,8 +83,8 @@ function drawShape(points, edges, zoom) {
         let x2 = points[edge[1]][0] * zoom
         let y2 = points[edge[1]][1] * zoom
 
-        ctx.moveTo(x1, y1)
-        ctx.lineTo(x2, y2)
+        ctx.moveTo(...mouseShift(x1, y1))
+        ctx.lineTo(...mouseShift(x2, y2))
     })
     ctx.stroke()
     ctx.restore()
@@ -96,8 +100,28 @@ function update() {
     // angleY += mouse.x / 100
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    drawShape(projection3D(points, angleX, angleY), edges, 1000)
+
+    let projectedPoints = projection3D(points, angleX, angleY)
+    drawShape(projectedPoints, edges, 1000)
+
     requestAnimationFrame(update)
+}
+
+function mouseShift(x, y) {
+    let power
+    let distanceX = x - mouse.absX
+    let distanceY = y - mouse.absY
+    let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
+    let distanceFixed = distance * 0.95
+
+    power = Math.E ** -(Math.PI * distanceFixed)
+
+    let shiftX = distanceX * power
+    let shiftY = distanceY * power
+
+    // console.log(distanceX)
+
+    return [x + shiftX, y + shiftY]
 }
 
 let angleX = 0
