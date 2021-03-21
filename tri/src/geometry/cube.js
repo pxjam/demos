@@ -23,8 +23,4 @@ export default class Cube {
         [5, 7],
         [6, 7]
     ]
-
-    constructor() {
-
-    }
 }

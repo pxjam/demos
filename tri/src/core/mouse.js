@@ -2,12 +2,16 @@ let ww = window.innerWidth
 let wh = window.innerHeight
 
 let mouse = {
+    /*
     x: ww / 2,
     y: wh / 2,
+    */
     cx: 0,
     cy: 0,
+    /*
     progressX: 0,
     progressY: 0,
+    */
     inertia: 0.05
 }
 
@@ -47,15 +51,15 @@ let update = (targetX, targetY) => {
 
 let inertiaTo = (current, target) => {
     let distToGo = target - current
-    let newCoord = current + (distToGo * mouse.inertia)
+    let newPos = current + (distToGo * mouse.inertia)
 
     if (Math.abs(distToGo) < 5) {
         cancelAnimationFrame(mousemoveTimer)
         shouldStop = true
-        newCoord = target
+        newPos = target
     }
 
-    return newCoord
+    return newPos
 }
 
 window.addEventListener('mousemove', e => {

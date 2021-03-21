@@ -9,7 +9,6 @@ export default function({height = 1, radius = 1, segments = 4} = {}) {
             radius * Math.sin(angle)
         ])
     }
-    console.log(waistPoints)
 
     this.points = [
         [0, height, 0],
