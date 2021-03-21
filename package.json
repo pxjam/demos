@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "tri-demo": "parcel tri/demo.html",
-    "tri-build": "parcel build tri/*.html --public-url ./ -d out/tri",
+    "tri-build": "rimraf out/tri && parcel build tri/*.html --public-url ./ -d out/tri",
     "3d-gltf": "parcel 3d-gltf/index.html",
     "3d-gltf-sputnik": "parcel 3d-gltf/sputnik.html",
-    "3d-gltf-build": "parcel build 3d-gltf/*.html --public-url ./ -d out/3d-gltf",
+    "3d-gltf-build": "rimraf out/3d-gltf && parcel build 3d-gltf/*.html --public-url ./ -d out/3d-gltf",
     "elcom-sphere": "parcel elcom/sphere.html",
     "elcom-hypercube": "parcel elcom/hypercube.html",
     "elcom-globe": "parcel elcom/globe.html",
@@ -15,12 +15,11 @@
     "elcom-room2": "parcel elcom/room2.html",
     "elcom-room3": "parcel elcom/room3.html",
     "elcom-diamond": "parcel elcom/diamond.html",
-    "elcom-build": "parcel build elcom/*.html --public-url ./ -d out/elcom",
+    "elcom-build": "rimraf out/elcom && parcel build elcom/*.html --public-url ./ -d out/elcom",
     "canvas-mesh": "parcel canvas-mesh/index.html",
-    "canvas-mesh-build": "parcel build canvas-mesh/index.html --public-url ./ -d out/canvas-mesh",
-    "meshes-build": "parcel elcom/*.html",
+    "canvas-mesh-build": "rimraf out/canvas-mesh && parcel build canvas-mesh/index.html --public-url ./ -d out/canvas-mesh",
     "canvas-figures": "parcel canvas-figures/index.html",
-    "canvas-figures-build": "parcel build canvas-figures/index.html --public-url ./ -d out/canvas-figures"
+    "canvas-figures-build": "rimraf out/canvas-figures && parcel build canvas-figures/index.html --public-url ./ -d out/canvas-figures"
   },
   "repository": {
     "type": "git",
@@ -30,6 +29,7 @@
   "devDependencies": {
     "cssnano": "^4.1.10",
     "pug": "^3.0.0",
+    "rimraf": "^3.0.2",
     "sass": "^1.26.10"
   },
   "dependencies": {
