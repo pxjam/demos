@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "3d-cubes": "parcel 3d-cubes/demo.html",
+    "3d-cubes-build": "rimraf out/3d-cubes && parcel build 3d-cubes/*.html --public-url ./ -d out/3d-cubes",
     "tri-demo": "parcel tri/demo.html",
     "tri-build": "rimraf out/tri && parcel build tri/*.html --public-url ./ -d out/tri",
     "3d-gltf": "parcel 3d-gltf/index.html",
