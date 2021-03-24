@@ -7,9 +7,7 @@ let paramsDefault = {
 
     // firstCubeSize: 5,
     // cubesCount: 10,
-    bgColor: {
-        r: 0, g: 0, b: 0
-    },
+    bgLight: false,
     duplicateMethod: 'multiply',
     duplicateFactor: 1.15,
     framesOverlay: 0.92,
@@ -33,7 +31,7 @@ function reduceArrayToObject(acc, curr) {
 f1.addInput(params, 'firstCubeSize', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'cubesCount', {min: 1, max: 50, step: 1})
 f1.addInput(params, 'duplicateFactor', {min: 0.5, max: 3, step: 0.001})
-f1.addInput(params, 'bgColor')
+f1.addInput(params, 'bgLight')
 f1.addInput(params, 'framesOverlay', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'duplicateMethod', {
     options: ['sum', 'multiply', 'exponent'].reduce(reduceArrayToObject, {})
@@ -65,7 +63,7 @@ let alpha
 let fps = 0
 let ncube
 let npoly
-let drag
+let drag = true
 let moved
 let startX = 0
 let startY = 0
@@ -290,7 +288,7 @@ let init = function() {
         e.preventDefault() // prevents scrolling
         if (box.setCapture) box.setCapture()
         moved = false
-        drag = true
+        //drag = true
         startX = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX) - nx
         startY = (e.clientY !== undefined ? e.clientY : e.touches[0].clientY) - ny
     }
@@ -346,18 +344,10 @@ let init = function() {
         autorotate = this.checked
     }
 
-    document.getElementById('destroy').onchange = function() {
-        destroy = this.checked
-    }
-
     document.getElementById('stopgo').onclick = function() {
         running = !running
         document.getElementById('stopgo').value = running ? 'STOP' : 'GO!'
         if (running) run()
-    }
-
-    document.getElementById('reset').onclick = function() {
-        reset()
     }
 
     reset()
@@ -373,8 +363,8 @@ let run = function() {
         ctx.fillRect(0, 0, canvas.width, canvas.height)
     } else {
         // screen background
-        let bg = params.bgColor
-        ctx.fillStyle = `rgba(${bg.r}, ${bg.g}, ${bg.b}, ${1 - params.framesOverlay})`
+        let bg = (params.bgLight) ? '255,255,255' : '0,0,0'
+        ctx.fillStyle = `rgba(${bg}, ${1 - params.framesOverlay})`
         ctx.fillRect(0, 0, canvasW, canvasH)
 
         // easing rotations
