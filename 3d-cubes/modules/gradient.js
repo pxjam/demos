@@ -5,6 +5,7 @@ export let gradParams = {
     gradColor1: {r: 0, g: 251, b: 235},
     gradColor2: {r: 186, g: 0, b: 250},
     gradColor3: {r: 250, g: 120, b: 20},
+    gradPreview: false,
 }
 
 export function createGradControls(paneFolder, params) {
@@ -17,6 +18,7 @@ export function createGradControls(paneFolder, params) {
     paneFolder.addInput(params, 'gradColor1')
     paneFolder.addInput(params, 'gradColor2')
     paneFolder.addInput(params, 'gradColor3')
+    paneFolder.addInput(params, 'gradPreview')
 }
 
 let rgbFromObject = (obj) => `rgb(${obj.r}, ${obj.g}, ${obj.b})`
@@ -24,7 +26,6 @@ let rgbFromObject = (obj) => `rgb(${obj.r}, ${obj.g}, ${obj.b})`
 export function getActualGradient(canvas, params) {
     let cw =  canvas.width
     let ch =  canvas.height
-    console.log('cw', cw)
     let gradCX = (0.5 + params.gradCenter.x) * cw
     let gradCY = (0.5 + params.gradCenter.y) * ch
 
