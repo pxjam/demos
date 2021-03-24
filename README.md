@@ -11,6 +11,7 @@
     - [Elcom Globe demo](https://pxjam.github.io/demos/out/elcom/globe.html)
     - [Elcom Diamond demo](https://pxjam.github.io/demos/out/elcom/diamond.html)
     - [TRI demo](https://pxjam.github.io/demos/out/tri/demo.html)
+    - [3D Cubes](https://pxjam.github.io/demos/out/3d-cubes/)
 
 - 3d imports
     - [Globe](https://pxjam.github.io/demos/out/3d-gltf/index.html)
