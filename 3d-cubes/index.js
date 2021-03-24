@@ -1,9 +1,46 @@
-// ======== private vars ========
+import Tweakpane from 'tweakpane'
+import {createGradControls, gradParams, getActualGradient} from './modules/gradient'
 
-let params = {
-    firstCubeSize: 5,
-    cubesCount: 10
+let paramsDefault = {
+    firstCubeSize: 14,
+    cubesCount: 25,
+
+    // firstCubeSize: 5,
+    // cubesCount: 10,
+    bgColor: {
+        r: 0, g: 0, b: 0
+    },
+    duplicateMethod: 'multiply',
+    duplicateFactor: 1.15,
+    framesOverlay: 0.92,
+    ...gradParams
 }
+let params = Object.assign({}, paramsDefault)
+
+window.pane = new Tweakpane({container: document.querySelector('[data-pane]')})
+let f1 = pane.addFolder({
+    title: 'Настройки',
+    expanded: false
+})
+
+function reduceArrayToObject(acc, curr) {
+    acc[curr] = curr
+    return acc
+}
+
+f1.addInput(params, 'firstCubeSize', {min: 1, max: 100, step: 1})
+f1.addInput(params, 'cubesCount', {min: 1, max: 50, step: 1})
+f1.addInput(params, 'duplicateFactor', {min: 0.5, max: 3, step: 0.001})
+f1.addInput(params, 'bgColor')
+f1.addInput(params, 'framesOverlay', {min: 0, max: 1, step: 0.01})
+f1.addInput(params, 'duplicateMethod', {
+    options: ['sum', 'multiply', 'exponent'].reduce(reduceArrayToObject, {})
+})
+f1.addSeparator()
+createGradControls(f1, params)
+
+document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
+
 
 let scr
 let canvas
@@ -40,16 +77,17 @@ let minZ
 let angleY = 0
 let angleX = 0
 let angleZ = 0
-let bkgColor1 = 'rgba(0,0,0,0.1)'
 let autorotate = false
 let destroy = false
 let running = true
-// ---- fov ----
+// fov
 let fl = 250
 let zoom = 0
 
-function Canvas(id) {
-    this.container = document.getElementById(id)
+let gradient
+
+function Canvas(selector) {
+    this.container = document.querySelector(selector)
     this.ctx = this.container.getContext('2d')
     this.resize = function(w, h) {
         this.container.width = w
@@ -66,7 +104,7 @@ function Point(parent, xyz, project) {
 }
 
 Point.prototype.projection = function() {
-    // ---- 3D rotation ----
+    // 3D rotation
     let x = cosY * (sinZ * this.yo + cosZ * this.xo) - sinY * this.zo
     let y = sinX * (cosY * this.zo + sinY * (sinZ * this.yo + cosZ * this.xo)) + cosX * (cosZ * this.yo - sinZ * this.xo)
     let z = cosX * (cosY * this.zo + sinY * (sinZ * this.yo + cosZ * this.xo)) - sinX * (cosZ * this.yo - sinZ * this.xo)
@@ -74,10 +112,11 @@ Point.prototype.projection = function() {
     this.y = y
     this.z = z
     if (this.project) {
-        // ---- point visible ----
+        // point visible
         if (z < minZ) minZ = z
         this.visible = (zoom + z > 0)
-        // ---- 3D to 2D projection ----
+
+        // 3D to 2D projection
         this.X = (canvasW * 0.5) + x * (fl / (z + zoom))
         this.Y = (canvasH * 0.5) + y * (fl / (z + zoom))
     }
@@ -85,39 +124,43 @@ Point.prototype.projection = function() {
 
 // ======= polygon constructor ========
 let Face = function(cube, index, normalVector) {
-    // ---- parent cube ----
+    // parent cube
     this.cube = cube
-    // ---- coordinates ----
+
+    // coordinates
     this.p0 = cube.points[index[0]]
     this.p1 = cube.points[index[1]]
     this.p2 = cube.points[index[2]]
     this.p3 = cube.points[index[3]]
-    // ---- normal vector ----
+
+    // normal vector
     this.normal = new Point(this, normalVector, false)
-    // ---- # faces ----
+
+    // faces
     npoly++
     document.getElementById('npoly').innerHTML = npoly
 }
 
 Face.prototype = {
     faceVisible: function() {
-        // ---- points visible ----
+        // points visible
         if (this.p0.visible && this.p1.visible && this.p2.visible && this.p3.visible) {
-            // ---- back face culling ----
+            // back face culling
             if ((this.p1.Y - this.p0.Y) / (this.p1.X - this.p0.X) < (this.p2.Y - this.p0.Y) / (this.p2.X - this.p0.X) ^ this.p0.X < this.p1.X == this.p0.X > this.p2.X) {
-                // ---- face visible ----
+                // face visible
                 this.visible = true
                 return true
             }
         }
-        // ---- face hidden ----
+
+        // face hidden
         this.visible = false
         this.distance = -99999
         return false
     },
 
     distanceToCamera: function() {
-        // ---- distance to camera ----
+        // distance to camera
         let dx = (this.p0.x + this.p1.x + this.p2.x + this.p3.x) * 0.25
         let dy = (this.p0.y + this.p1.y + this.p2.y + this.p3.y) * 0.25
         let dz = (zoom + fl) + (this.p0.z + this.p1.z + this.p2.z + this.p3.z) * 0.25
@@ -128,7 +171,8 @@ Face.prototype = {
         let r
         let g
         let b
-        // ---- shape face ----
+
+        // shape face
         canvas.ctx.beginPath()
         canvas.ctx.moveTo(this.p0.X, this.p0.Y)
         canvas.ctx.lineTo(this.p1.X, this.p1.Y)
@@ -136,7 +180,7 @@ Face.prototype = {
         canvas.ctx.lineTo(this.p3.X, this.p3.Y)
         canvas.ctx.closePath()
 
-        // ---- flat (lambert) shading ----
+        // flat (lambert) shading
         this.normal.projection()
         let light = (
             white ?
@@ -145,13 +189,13 @@ Face.prototype = {
         ) * 256
         r = g = b = light
 
-        // ---- fill ----
+        // fill
         // canvas.ctx.fillStyle = 'rgba(' +
         //     Math.round(r) + ',' +
         //     Math.round(g) + ',' +
         //     Math.round(b) + ',' + this.cube.alpha + ')'
         // canvas.ctx.fill()
-        canvas.ctx.strokeStyle = 'rgba(255,255,255,1)'
+        canvas.ctx.strokeStyle = gradient
         canvas.ctx.stroke()
     }
 }
@@ -174,7 +218,7 @@ let Cube = function(nx, ny, nz, x, y, z, w) {
         new Point(this, p[i], true)
     )
 
-    // ---- faces coordinates ----
+    // faces coordinates
     let f = [
         [0, 1, 2, 3],
         [0, 4, 5, 1],
@@ -183,7 +227,8 @@ let Cube = function(nx, ny, nz, x, y, z, w) {
         [1, 5, 6, 2],
         [5, 4, 7, 6]
     ]
-    // ---- faces normals ----
+
+    // faces normals
     let nv = [
         [0, 0, 1],
         [0, 1, 0],
@@ -192,9 +237,10 @@ let Cube = function(nx, ny, nz, x, y, z, w) {
         [-1, 0, 0],
         [0, 0, -1]
     ]
-    // ---- cube transparency ----
+
+    // cube transparency
     this.alpha = alpha ? 0.5 : 1
-    // ---- push faces ----
+    // push faces
     for (let i in f) {
         faces.push(
             new Face(this, f[i], nv[i])
@@ -205,7 +251,7 @@ let Cube = function(nx, ny, nz, x, y, z, w) {
 
 
 let resize = function() {
-    // ---- screen resize ----
+    // screen resize
     canvasW = scr.offsetWidth
     canvasH = scr.offsetHeight
     let o = scr
@@ -216,28 +262,35 @@ let resize = function() {
     canvas.resize(canvasW, canvasH)
 }
 
-let reset = function() {
-    // ---- create first cube ----
+function reset() {
     cubes = []
     faces = []
     ncube = 0
     npoly = 0
 
     let size = params.firstCubeSize
+
     for (let i = 0; i < params.cubesCount; i++) {
         cubes.push(new Cube(0, 0, 0, 0, 0, 0, size))
-        size *= 1.618
+
+        if (params.duplicateMethod === 'sum') {
+            size += params.duplicateFactor * params.firstCubeSize
+        } else if (params.duplicateMethod === 'multiply') {
+            size *= params.duplicateFactor
+        } else if (params.duplicateMethod === 'exponent') {
+            size **= params.duplicateFactor
+        }
     }
 }
 
 let init = function() {
-    scr = document.getElementById('screen')
-    canvas = new Canvas('canvas')
+    scr = document.querySelector('.box')
+    canvas = new Canvas('[data-canvas]')
 
-    // ======== unified touch/mouse events handler ========
+    // unified touch/mouse events handler
     scr.ontouchstart = scr.onmousedown = function(e) {
         if (!running) return true
-        // ---- touchstart ----
+        // touchstart
         if (e.target !== canvas.container) return
         e.preventDefault() // prevents scrolling
         if (scr.setCapture) scr.setCapture()
@@ -249,23 +302,27 @@ let init = function() {
 
     scr.ontouchmove = scr.onmousemove = function(e) {
         if (!running) return true
-        // ---- touchmove ----
+
+        // touchmove
         e.preventDefault()
         xm = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX) - nx
         ym = (e.clientY !== undefined ? e.clientY : e.touches[0].clientY) - ny
+
         // detectFaceOver()
         if (drag) {
             cx = cxb + (xm - startX)
             cy = cyb - (ym - startY)
+            
+            console.log(cx)
         }
+
         if (Math.abs(xm - startX) > 10 || Math.abs(ym - startY) > 10) {
-            // ---- if pointer moves then cancel the tap/click ----
+            // if pointer moves then cancel the tap/click
             moved = true
         }
     }
 
-
-    // ---- Z axis rotation (mouse wheel) ----
+    // Z axis rotation (mouse wheel)
     // scr.addEventListener('DOMMouseScroll', function(e) {
     //     if (!running) return true
     //     cz += e.detail * 12
@@ -281,7 +338,7 @@ let init = function() {
     resize()
     window.addEventListener('resize', resize, false)
 
-    // ---- fps count ----
+    // fps count
     setInterval(function() {
         document.getElementById('fps').innerHTML = fps * 2
         fps = 0
@@ -308,31 +365,35 @@ let init = function() {
     document.getElementById('reset').onclick = function() {
         reset()
     }
-    // ---- engine start ----
     reset()
+
+    updateGradient()
+    // engine start
     run()
 }
 
-////////////////////////////////////////////////////////////////////////////
-// ======== main loop ========
+// main loop
 let run = function() {
-    // ---- screen background ----
-    canvas.ctx.fillStyle = bkgColor1
+    // screen background
+    let bg = params.bgColor
+    canvas.ctx.fillStyle = `rgba(${bg.r}, ${bg.g}, ${bg.b}, ${1 - params.framesOverlay})`
     canvas.ctx.fillRect(0, 0, canvasW, canvasH)
 
-    // ---- easing rotations ----
+    // easing rotations
     angleX += ((cy - angleX) * 0.05)
     angleY += ((cx - angleY) * 0.05)
     angleZ += ((cz - angleZ) * 0.05)
     if (autorotate) cz += 1
-    // ---- pre-calculating trigo ----
+
+    // pre-calculating trigo
     cosY = Math.cos(angleY * 0.01)
     sinY = Math.sin(angleY * 0.01)
     cosX = Math.cos(angleX * 0.01)
     sinX = Math.sin(angleX * 0.01)
     cosZ = Math.cos(angleZ * 0.01)
     sinZ = Math.sin(angleZ * 0.01)
-    // ---- points projection ----
+
+    // points projection
     minZ = 0
     let i = 0, c
     while (c = cubes[i++]) {
@@ -341,21 +402,23 @@ let run = function() {
             p.projection()
         }
     }
-    // ---- adapt zoom ----
+    // adapt zoom
     let d = -minZ + 100 - zoom
     zoom += (d * ((d > 0) ? 0.05 : 0.01))
-    // ---- faces light ----
+
+    // faces light
     let j = 0, f
     while (f = faces[j++]) {
         if (f.faceVisible()) {
             f.distanceToCamera()
         }
     }
-    // ---- faces depth sorting ----
+    // faces depth sorting
     faces.sort(function(p0, p1) {
         return p1.distance - p0.distance
     })
-    // ---- painting faces ----
+
+    // painting faces
     j = 0
     while (f = faces[j++]) {
         if (f.visible) {
@@ -366,5 +429,14 @@ let run = function() {
     fps++
     if (running) requestAnimationFrame(run)
 }
+
+let updateGradient = () => {
+    gradient = getActualGradient(canvas.container, params)
+}
+
+window.pane.on('change', (e) => {
+    reset()
+    updateGradient()
+})
 
 init()
