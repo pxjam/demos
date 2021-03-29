@@ -54,6 +54,7 @@ function projection(points3D, rotationX, rotationY,) {
             ? 1 / params.distance
             : 1 / (params.perspective - point[2])
 
+        // let scaledX = point[0] * scale / (params.distance / params.perspective) / params.distance
         let scaledX = point[0] * scale / correction / params.distance
         let scaledY = point[1] * scale / correction / params.distance
         points2D.push([scaledX, scaledY])

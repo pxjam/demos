@@ -1,16 +1,20 @@
 import Tweakpane from 'tweakpane'
 import {createGradControls, gradParams, getActualGradient} from './modules/gradient'
+import mouse from './modules/mouse'
+import {PI} from '../tri/src/core/math'
 
 let paramsDefault = {
     firstCubeSize: 14,
-    cubesCount: 25,
-
+    cubesCount: 15,
     // firstCubeSize: 5,
     // cubesCount: 10,
-    bgLight: false,
-    duplicateMethod: 'multiply',
+    bgLight: true,
+    duplicateMethod: 'sum',
     duplicateFactor: 1.15,
-    framesOverlay: 0.92,
+    framesOverlay: 0,
+    focal: 2000,
+    param: 0.1,
+    mouse: false,
     ...gradParams
 }
 let params = Object.assign({}, paramsDefault)
@@ -32,9 +36,12 @@ f1.addInput(params, 'firstCubeSize', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'cubesCount', {min: 1, max: 50, step: 1})
 f1.addInput(params, 'duplicateFactor', {min: 0.5, max: 3, step: 0.001})
 f1.addInput(params, 'bgLight')
+f1.addInput(params, 'mouse', false)
+f1.addInput(params, 'focal', {min: 0, max: 400, step: 1})
+f1.addInput(params, 'param', {min: 0, max: 1, step: 0.1})
 f1.addInput(params, 'framesOverlay', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'duplicateMethod', {
-    options: ['sum', 'multiply', 'exponent'].reduce(reduceArrayToObject, {})
+    options: ['sum', 'multiply'].reduce(reduceArrayToObject, {})
 })
 f1.addSeparator()
 createGradControls(f1, params)
@@ -104,12 +111,23 @@ Point.prototype.projection = function() {
     this.z = z
     if (this.project) {
         // point visible
-        if (z < minZ) minZ = z
+        // if (z < minZ) minZ = z
         this.visible = (zoom + z > 0)
+        //this.visible = true
+
+        //let correction = params.zoom
 
         // 3D to 2D projection
+        // this.X = (canvasW  * 0.5) + x * (params.focal / (z + zoom))
+        // this.Y = (canvasH  * 0.5) + y * (params.focal / (z + zoom))
+
+
         this.X = (canvasW * 0.5) + x * (fl / (z + zoom))
         this.Y = (canvasH * 0.5) + y * (fl / (z + zoom))
+
+        //point[0] * scale / (params.distance / params.perspective) / params.distance
+        // this.X = (canvasW * 0.5) + x * zoom //* (z -params.param) / (this.distance / params.param) / this.distance
+        // this.Y = (canvasH * 0.5) + y * zoom //* (z -params.param) / (this.distance / params.param) / this.distance
     }
 }
 
@@ -134,6 +152,7 @@ let Face = function(cube, index, normalVector) {
 
 Face.prototype = {
     faceVisible: function() {
+
         // points visible
         if (this.p0.visible && this.p1.visible && this.p2.visible && this.p3.visible) {
             // back face culling
@@ -154,7 +173,7 @@ Face.prototype = {
         // distance to camera
         let dx = (this.p0.x + this.p1.x + this.p2.x + this.p3.x) * 0.25
         let dy = (this.p0.y + this.p1.y + this.p2.y + this.p3.y) * 0.25
-        let dz = (zoom + fl) + (this.p0.z + this.p1.z + this.p2.z + this.p3.z) * 0.25
+        let dz = (zoom + params.focal) + (this.p0.z + this.p1.z + this.p2.z + this.p3.z) * 0.25
         this.distance = Math.sqrt(dx * dx + dy * dy + dz * dz)
     },
 
@@ -165,10 +184,10 @@ Face.prototype = {
 
         // shape face
         ctx.beginPath()
-        ctx.moveTo(this.p0.X, this.p0.Y)
-        ctx.lineTo(this.p1.X, this.p1.Y)
-        ctx.lineTo(this.p2.X, this.p2.Y)
-        ctx.lineTo(this.p3.X, this.p3.Y)
+        ctx.moveTo(...mouseShift(this.p0.X, this.p0.Y))
+        ctx.lineTo(...mouseShift(this.p1.X, this.p1.Y))
+        ctx.lineTo(...mouseShift(this.p2.X, this.p2.Y))
+        ctx.lineTo(...mouseShift(this.p3.X, this.p3.Y))
         ctx.closePath()
 
         // flat (lambert) shading
@@ -269,8 +288,6 @@ function reset() {
             size += params.duplicateFactor * params.firstCubeSize
         } else if (params.duplicateMethod === 'multiply') {
             size *= params.duplicateFactor
-        } else if (params.duplicateMethod === 'exponent') {
-            size **= params.duplicateFactor
         }
     }
 }
@@ -430,8 +447,25 @@ let roundParams = () => {
     }
 }
 
+function mouseShift(x, y) {
+    if (!params.mouse) return  [x,y]
+    let power
+    let distanceX = x - mouse.cx
+    let distanceY = y - mouse.cy
+    let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
+
+    // let distanceFixed = distance / params.baseSize / params.mouseDistance
+    let distanceFixed = distance / 500
+    power = Math.E ** -(PI / 2 * distanceFixed)
+
+    let shiftX = distanceX * power
+    let shiftY = distanceY * power
+
+    return [x + shiftX, y + shiftY]
+}
 
 window.pane.on('change', (e) => {
+    console.log(mouse.cx, mouse.cy)
     // pane.on('change', (ev) => {
     //     if (ev.presetKey === "gradPreview" && ev.value) {
     //         resize()
