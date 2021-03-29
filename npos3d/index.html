@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+    <title>NPos3d demo</title>
+</head>
+<body>
+
+<!--
+Other page content, if any, would go here.
+If you have any, be sure that it is all wrapped inside of a single block element,
+and be sure that you use CSS to give it a position value of `absolute`, `relative` or `fixed`,
+and give it a `z-index` greater than 1, or the Scene's default canvas will overlap it.
+-->
+
+<script src="modules/npos3d.js"></script>
+
+<script>
+    //Your scene setup code would go here, or this script tag could be given
+    //a `src` attribute which points to an external javascript file as well
+    var triangleShape = {
+        points: [
+            [ 100, 0,  0, '#fff'],
+            [-100,-100, 0],
+            [-100, 100, 0],
+        ],
+        lines: [
+            [0, 1],
+            [1, 2],
+            [2, 0],
+        ]
+    }
+
+    var n = NPos3d;
+    var scene = new n.Scene();
+    var triangle = new n.Ob3D({
+        renderStyle: 'lines',
+        shape: triangleShape, //The shape is designed to be pointing to the right
+        rot: [0, 0, 0], //but I rotate it along the Z axis so that it is pointing upward.
+        pos: [-400, 0, 0],
+        color: '#90f'
+    });
+    var myOb = new n.Ob3D({
+        pos: [100, 100, 0],
+        // rot: [45 * deg, 60 * deg, 0],
+        scale: [5, 10, 5],
+        color: '#f00'
+    });
+    var myOb2 = new n.Ob3D({
+        pos: [100, 100, 0],
+        // rot: [45 * deg, 60 * deg, 0],
+        scale: [10, 20, 10],
+        color: '#f00'
+    });
+    myOb.update = function() {
+        var t = this;
+        t.pos[0] = scene.mpos.x / 5;
+        t.pos[1] = scene.mpos.y / 5;
+        t.rot[0] = -deg * scene.mpos.y / 10;
+        t.rot[1] = -deg * scene.mpos.x / 10;
+        t.color = 'hsl(' + Math.round(t.rot[1] / deg) + ', 100%, 50%)';
+    };
+    myOb2.update = function() {
+        var t = this;
+        t.pos[0] = scene.mpos.x / 5;
+        t.pos[1] = scene.mpos.y / 5;
+        t.rot[0] = -deg * scene.mpos.y / 10;
+        t.rot[1] = deg * scene.mpos.x / 10;
+        t.color = 'hsl(' + Math.round(t.rot[1] / deg) + ', 100%, 50%)';
+    };
+    scene.add(myOb);
+    scene.add(myOb2);
+    // scene.add(triangle);
+
+    // var n = NPos3d;
+    // var scene = new n.Scene({
+    //     globalCompositeOperation: 'lighter'
+    // });
+    //
+    // var settings = {
+    //     "pointScale": 32,
+    //     "motionRadius": 32,
+    //     "minScale": 2,
+    //     "mulScale": 4,
+    //     "speedMultiplier": 5,
+    //     "renderStyle": "both" // || lines, points, both
+    // };
+    //
+    // var Perplexor = function(args) {
+    //     var t = this, type = 'Perplexor';
+    //     if(t.type !== type){throw 'You must use the `new` keyword when invoking the ' + type + ' constructor.';}
+    //     args = args || {};
+    //     n.blessWith3DBase(t, args);
+    //     t.index = args.index || 0;
+    //     t.count = args.count || 1;
+    //     t.spacing = tau / t.count;
+    //     t.offset = t.spacing * t.index;
+    //     t.color = 'hsl('+((360/t.count) * t.index)+',100%,50%)';
+    //     scene.add(t);
+    //     return t;
+    // };
+    //
+    // Perplexor.prototype = {
+    //     type: 'Perplexor',
+    //     shape: n.Geom.cube,
+    //     pointStyle: 'stroke',
+    //     update: function() {
+    //         var t = this,
+    //             angle = t.offset + t.rot[1],
+    //             fac = (Math.sin(angle + t.rot[1] * settings.speedMultiplier) + settings.minScale) * settings.mulScale;
+    //         t.pointScale = settings.pointScale;
+    //         t.renderStyle = settings.renderStyle;
+    //         t.rot[0] -= deg;
+    //         t.rot[1] += deg;
+    //         t.pos[0] = cos(angle) * settings.motionRadius;
+    //         t.pos[1] = sin(-angle) * settings.motionRadius;
+    //         t.scale[0] = t.scale[1] = t.scale[2] = fac;
+    //     }
+    // };
+    //
+    // var i,
+    //     count = 36;
+    // for(i = 0; i < count; i += 1){
+    //     new Perplexor({
+    //         index: i,
+    //         count: count
+    //     });
+    // }
+</script>
+</body>
+</html>
