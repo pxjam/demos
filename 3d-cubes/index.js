@@ -1,11 +1,13 @@
 import Tweakpane from 'tweakpane'
 import {createGradControls, gradParams, getActualGradient} from './modules/gradient'
 import mouse from './modules/mouse'
-import {PI} from '../tri/src/core/math'
+import {PI} from './modules/math'
+import {Cube} from './geometry/Cube'
+import {Globe} from './geometry/Globe'
 
 let paramsDefault = {
-    firstCubeSize: 14,
-    cubesCount: 15,
+    firstCubeSize: 300,
+    cubesCount: 1,
     // firstCubeSize: 5,
     // cubesCount: 10,
     bgLight: true,
@@ -68,8 +70,6 @@ let cyb = 0
 let white
 let alpha
 let fps = 0
-let ncube
-let npoly
 let drag = true
 let moved
 let startX = 0
@@ -93,12 +93,12 @@ let zoom = 0
 
 let gradient
 
-function Point(parent, xyz, project) {
+export function Point(parent, xyz, project) {
     this.project = project
     this.xo = xyz[0]
     this.yo = xyz[1]
     this.zo = xyz[2]
-    this.cube = parent
+    this.parent = parent
 }
 
 Point.prototype.projection = function() {
@@ -109,50 +109,60 @@ Point.prototype.projection = function() {
     this.x = x
     this.y = y
     this.z = z
+
     if (this.project) {
         // point visible
-        // if (z < minZ) minZ = z
+        if (z < minZ) minZ = z
         this.visible = (zoom + z > 0)
-        //this.visible = true
-
-        //let correction = params.zoom
+        // this.visible = true
 
         // 3D to 2D projection
-        // this.X = (canvasW  * 0.5) + x * (params.focal / (z + zoom))
-        // this.Y = (canvasH  * 0.5) + y * (params.focal / (z + zoom))
-
-
         this.X = (canvasW * 0.5) + x * (fl / (z + zoom))
         this.Y = (canvasH * 0.5) + y * (fl / (z + zoom))
-
-        //point[0] * scale / (params.distance / params.perspective) / params.distance
-        // this.X = (canvasW * 0.5) + x * zoom //* (z -params.param) / (this.distance / params.param) / this.distance
-        // this.Y = (canvasH * 0.5) + y * zoom //* (z -params.param) / (this.distance / params.param) / this.distance
     }
 }
 
 // ======= polygon constructor ========
-let Face = function(cube, index, normalVector) {
-    // parent cube
-    this.cube = cube
+export let Face = function(parent, index, normalVector) {
+    // parent parent
+    this.parent = parent
+    this.length = index.length
+    this.hasGt3Points = index.length === 4
 
     // coordinates
-    this.p0 = cube.points[index[0]]
-    this.p1 = cube.points[index[1]]
-    this.p2 = cube.points[index[2]]
-    this.p3 = cube.points[index[3]]
+    this.p0 = parent.points[index[0]]
+    this.p1 = parent.points[index[1]]
+    this.p2 = parent.points[index[2]]
+
+    if (this.hasGt3Points) {
+        this.p3 = parent.points[index[3]]
+    }
 
     // normal vector
     this.normal = new Point(this, normalVector, false)
-
-    // faces
-    npoly++
-    document.getElementById('npoly').innerHTML = npoly
 }
 
 Face.prototype = {
-    faceVisible: function() {
+    faceVisible3: function() {
+        this.visible = true
+        return
+        // points visible
+        if (this.p0.visible && this.p1.visible && this.p2.visible) {
+            // back face culling
+            if ((this.p1.Y - this.p0.Y) / (this.p1.X - this.p0.X) < (this.p2.Y - this.p0.Y) / (this.p2.X - this.p0.X)) {
+                // face visible
+                this.visible = true
+                return true
+            }
+        }
 
+        // face hidden
+        this.visible = false
+        this.distance = -99999
+        return false
+    },
+
+    faceVisible4: function() {
         // points visible
         if (this.p0.visible && this.p1.visible && this.p2.visible && this.p3.visible) {
             // back face culling
@@ -170,10 +180,16 @@ Face.prototype = {
     },
 
     distanceToCamera: function() {
+        let avgFactor = 1 / this.length
+
+        let p3x = this.hasGt3Points ? this.p3.x : 0
+        let p3y = this.hasGt3Points ? this.p3.y : 0
+        let p3z = this.hasGt3Points ? this.p3.z : 0
+
         // distance to camera
-        let dx = (this.p0.x + this.p1.x + this.p2.x + this.p3.x) * 0.25
-        let dy = (this.p0.y + this.p1.y + this.p2.y + this.p3.y) * 0.25
-        let dz = (zoom + params.focal) + (this.p0.z + this.p1.z + this.p2.z + this.p3.z) * 0.25
+        let dx = (this.p0.x + this.p1.x + this.p2.x + p3x) * avgFactor
+        let dy = (this.p0.y + this.p1.y + this.p2.y + p3y) * avgFactor
+        let dz = (zoom + fl) + (this.p0.z + this.p1.z + this.p2.z + p3z) * avgFactor
         this.distance = Math.sqrt(dx * dx + dy * dy + dz * dz)
     },
 
@@ -187,7 +203,10 @@ Face.prototype = {
         ctx.moveTo(...mouseShift(this.p0.X, this.p0.Y))
         ctx.lineTo(...mouseShift(this.p1.X, this.p1.Y))
         ctx.lineTo(...mouseShift(this.p2.X, this.p2.Y))
-        ctx.lineTo(...mouseShift(this.p3.X, this.p3.Y))
+
+        if (this.length > 3) {
+            ctx.lineTo(...mouseShift(this.p3.X, this.p3.Y))
+        }
         ctx.closePath()
 
         // flat (lambert) shading
@@ -199,66 +218,10 @@ Face.prototype = {
         ) * 256
         r = g = b = light
 
-        // fill
-        // ctx.fillStyle = 'rgba(' +
-        //     Math.round(r) + ',' +
-        //     Math.round(g) + ',' +
-        //     Math.round(b) + ',' + this.cube.alpha + ')'
-        // ctx.fill()
         ctx.strokeStyle = gradient
         ctx.stroke()
     }
 }
-
-// ======== Cube constructor ========
-let Cube = function(nx, ny, nz, x, y, z, w) {
-    this.w = w
-    this.points = []
-    let p = [
-        [x - w, y - w, z - w],
-        [x + w, y - w, z - w],
-        [x + w, y + w, z - w],
-        [x - w, y + w, z - w],
-        [x - w, y - w, z + w],
-        [x + w, y - w, z + w],
-        [x + w, y + w, z + w],
-        [x - w, y + w, z + w]
-    ]
-    for (let i in p) this.points.push(
-        new Point(this, p[i], true)
-    )
-
-    // faces coordinates
-    let f = [
-        [0, 1, 2, 3],
-        [0, 4, 5, 1],
-        [3, 2, 6, 7],
-        [0, 3, 7, 4],
-        [1, 5, 6, 2],
-        [5, 4, 7, 6]
-    ]
-
-    // faces normals
-    let nv = [
-        [0, 0, 1],
-        [0, 1, 0],
-        [0, -1, 0],
-        [1, 0, 0],
-        [-1, 0, 0],
-        [0, 0, -1]
-    ]
-
-    // cube transparency
-    this.alpha = alpha ? 0.5 : 1
-    // push faces
-    for (let i in f) {
-        faces.push(
-            new Face(this, f[i], nv[i])
-        )
-    }
-    ncube++
-}
-
 
 let resize = function() {
     // screen resize
@@ -276,13 +239,16 @@ let resize = function() {
 function reset() {
     cubes = []
     faces = []
-    ncube = 0
-    npoly = 0
 
     let size = params.firstCubeSize
 
     for (let i = 0; i < params.cubesCount; i++) {
-        cubes.push(new Cube(0, 0, 0, 0, 0, 0, size))
+        //let newCube = new Cube(0, 0, 0, size)
+
+        let newCube = new Globe(size)
+
+        cubes.push(newCube)
+        faces.push(...newCube.faces)
 
         if (params.duplicateMethod === 'sum') {
             size += params.duplicateFactor * params.firstCubeSize
@@ -409,12 +375,16 @@ let run = function() {
         }
         // adapt zoom
         let d = -minZ + 100 - zoom
-        zoom += (d * ((d > 0) ? 0.05 : 0.01))
+        //zoom += (d * ((d > 0) ? 0.05 : 0.01))
+        zoom = 500
 
         // faces light
         let j = 0, f
         while (f = faces[j++]) {
-            if (f.faceVisible()) {
+            if (
+                f.length === 3 && f.faceVisible3()
+                || f.length === 4 && f.faceVisible4()
+            ) {
                 f.distanceToCamera()
             }
         }
@@ -465,7 +435,6 @@ function mouseShift(x, y) {
 }
 
 window.pane.on('change', (e) => {
-    console.log(mouse.cx, mouse.cy)
     // pane.on('change', (ev) => {
     //     if (ev.presetKey === "gradPreview" && ev.value) {
     //         resize()
