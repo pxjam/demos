@@ -996,6 +996,10 @@ NPos3d.Scene.prototype = {
     lineRenderLoop: function(o) {
         var t = this, m = NPos3d.Maths,
             i, p3a, p3b
+        
+        // console.log(t.c)
+        //t.c.globalAlpha = 0.1
+        
         for (i = 0; i < o.shape.lines.length; i += 1) {
             //offset the points by the object's position
             p3a = o.transformedPointCache[o.shape.lines[i][0]]
@@ -1018,11 +1022,16 @@ NPos3d.Scene.prototype = {
                 var p1InBounds = m.pointIn2dBounds([p1.x, p1.y], screenBounds)
                 //If the line is completely off screen, do not bother rendering it.
                 if (p0InBounds || p1InBounds) {
+
+                    
+
+
                     t.renderInstructionList.push({
                         method: t.drawLine,
                         args: {
                             a: p0,
                             b: p1,
+                            //color: o.shape.lines[i][2] || o.shape.color || o.color || t.strokeStyle,
                             color: o.shape.lines[i][2] || o.shape.color || o.color || t.strokeStyle,
                             lineWidth: o.lineWidth || o.parent.lineWidth || t.lineWidth || 1
                         },

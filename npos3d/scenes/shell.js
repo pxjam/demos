@@ -2,6 +2,7 @@ import Tweakpane from 'tweakpane'
 import NPos3d from '../modules/npos3d'
 import {paneOptions} from '../modules/paneOptions'
 import mouse from '../modules/mouse'
+import presets from '../presets/shell'
 
 let paramsDefault = {
     rings: 14,
@@ -13,7 +14,9 @@ let paramsDefault = {
     rotateOffset: 10,
     renderStyle: 'lines',
     // rotateSpeed: 150
-    rotateSpeed: 0
+    rotateSpeed: 0,
+    rotateX: 1,
+    rotateY: 1
     //...gradParams
 }
 let params = Object.assign({}, paramsDefault)
@@ -34,13 +37,39 @@ f1.addInput(params, 'points', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'pointScale', {min: 0.001, max: 1000, step: 0.001})
 f1.addInput(params, 'rotateOffset', {min: 1, max: 100, step: 0.01})
 f1.addInput(params, 'rotateSpeed', {min: 1, max: 1000, step: 1})
+f1.addInput(params, 'rotateX', {min: 0, max: 2 * Math.PI, step: 0.01})
+f1.addInput(params, 'rotateY', {min: 0, max: 2 * Math.PI, step: 0.01})
 f1.addInput(params, 'renderStyle', {
     options: paneOptions('points', 'lines', 'both')
 })
+f1.addInput({preset: 0}, 'preset', {
+    options: presets.reduce((acc, val, i) => {
+        acc['preset' + i] = i
+        return acc
+    }, {})
+})
+
+if (presets.length) {
+    Object.assign(params, paramsDefault, presets[0])
+    pane.refresh()
+}
+
+let saveBtn = f1.addButton({title: 'Copy preset'});
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())));
+
+let presetTimer
 
 pane.on('change', e => {
-    setup()
-    // pane.refresh()
+    if (e.presetKey === 'preset') {
+        Object.assign(params, paramsDefault, presets[e.value])
+        //setup()
+        pane.refresh()
+    } else {
+        clearTimeout(presetTimer)
+        presetTimer = setTimeout(() => {
+            setup()
+        }, 50)
+    }
 })
 
 let lib = NPos3d
@@ -107,13 +136,8 @@ MultiPointHolder.prototype = {
 
         that.lastRotString = false
 
-        if (that.parallel) {
-            that.rot[0] += deg / 1000 * params.rotateSpeed + mouse.cx / 100000
-            // that.rot[1] += deg / 1000 * params.rotateSpeed ////+ mouse.cy / 100000
-        } else {
-            that.rot[0] += deg / 1000 * params.rotateSpeed + mouse.cx / 100000
-            that.rot[1] += deg / 1000 * params.rotateSpeed + mouse.cy / 100000
-        }
+        that.rot[0] += deg / 1000 * params.rotateSpeed + mouse.cx / 100000
+        that.rot[1] += deg / 1000 * params.rotateSpeed + mouse.cy / 100000
 
         for (let i = 0; i < count; i++) {
             mPoint = that.multiPoints[i]
@@ -201,48 +225,22 @@ let subHandler = function() {
 }
 
 function setup() {
+    console.log('setup')
     mphList = []
     scene.children.forEach(child => {
         if (child.type !== 'Camera') scene.remove(child)
     })
 
     for (let i = 1; i <= params.rings; i++) {
+
         let mph = new MultiPointHolder({
             rot: [
-                0,
-                i * Math.PI / params.rings,
+                i * Math.PI / params.rings * params.rotateX,
+                i * Math.PI / params.rings * params.rotateY,
                 0
             ],
+            renderStyle: params.renderStyle,
             radius: params.firstRadius + (i * params.radiusStep)
-        })
-        mphList.push(mph)
-        scene.add(mph)
-    }
-
-    for (let i = 1; i <= params.parallels; i++) {
-        let sections = params.parallels + 1
-        let progress = -1
-        let progressStep = 2 / sections
-
-        let y0 = -params.firstRadius
-        let step = 2 * params.firstRadius / (params.parallels + 1)
-        // let progressStep = params.firstRadius * 2 / (params.parallels + 1)
-
-        let r = params.firstRadius * Math.cos(progress + progressStep * i)
-
-        let mph = new MultiPointHolder({
-            rot: [
-                Math.PI / 2,
-                0,
-                0
-            ],
-            pos: [
-                0,
-                y0 + step * i,
-                0
-            ],
-            parallel: true,
-            radius: r
         })
         mphList.push(mph)
         scene.add(mph)
@@ -258,4 +256,6 @@ function setup() {
 
 setup()
 
+
+window.setup = setup
 window.scene = scene
