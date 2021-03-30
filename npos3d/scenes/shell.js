@@ -44,7 +44,7 @@ f1.addInput(params, 'renderStyle', {
 })
 f1.addInput({preset: 0}, 'preset', {
     options: presets.reduce((acc, val, i) => {
-        acc['preset' + i] = i
+        acc['preset ' + (i + 1)] = i
         return acc
     }, {})
 })
