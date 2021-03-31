@@ -1151,14 +1151,9 @@ NPos3d.Scene.prototype = {
 }
 
 NPos3d.Camera = function(args) {
-    var t = this, type = 'Camera'
+    let t = this
     args = args || {}
-    if (t.type !== type) {
-        throw 'You must use the `new` keyword when invoking the ' + type + ' constructor.'
-    }
-    if (!args.scene) {
-        throw 'You must provide a `scene` property when invoking the ' + type + ' constructor.'
-    }
+
     NPos3d.blessWith3DBase(t, args)
     //Field Of View; Important!
     t.clipNear = args.clipNear || -0.01
@@ -1168,7 +1163,7 @@ NPos3d.Camera = function(args) {
 NPos3d.Camera.prototype = {
     type: 'Camera',
     update: function() {
-        var t = this
+        let t = this
         t.pos[2] = Math.max(t.scene.w, t.scene.h) * t.frustumMultiplier
         // RECIPROCAL width / height of the frustum at ONE unit away from the camera
         // this arranges it so that it is exactly the right number of pixels where z=0, given where the camera is now

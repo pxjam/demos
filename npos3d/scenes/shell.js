@@ -17,6 +17,7 @@ let paramsDefault = {
     rotateSpeed: 0,
     rotateX: 1,
     rotateY: 1,
+    perspective: 0.75,
     ...gradParams
 }
 let params = Object.assign({}, paramsDefault)
@@ -34,13 +35,16 @@ f1.addInput(params, 'firstRadius', {min: 1, max: 800, step: 1})
 f1.addInput(params, 'radiusStep', {min: 0, max: 200, step: 1})
 f1.addInput(params, 'points', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'pointScale', {min: 0.001, max: 1000, step: 0.001})
-f1.addInput(params, 'rotateOffset', {min: 1, max: 100, step: 0.01})
-f1.addInput(params, 'rotateSpeed', {min: 1, max: 1000, step: 1})
+// f1.addInput(params, 'rotateOffset', {min: 1, max: 100, step: 0.01})
+f1.addInput(params, 'rotateSpeed', {min: 0, max: 1000, step: 1})
 f1.addInput(params, 'rotateX', {min: 0, max: 2 * Math.PI, step: 0.01})
 f1.addInput(params, 'rotateY', {min: 0, max: 2 * Math.PI, step: 0.01})
 f1.addInput(params, 'renderStyle', {
     options: paneOptions('points', 'lines', 'both')
 })
+
+f1.addSeparator()
+f1.addInput(params, 'perspective', {min: 0.1, max: 5, step: 0.05})
 
 f1.addSeparator()
 createGradControls(f1, params)
@@ -63,6 +67,9 @@ saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.expo
 let presetTimer
 
 pane.on('change', e => {
+    if (e.presetKey === 'perspective') {
+        updatePerspective()
+    }
     if (e.presetKey === 'preset') {
         Object.assign(params, paramsDefault, presets[e.value])
         //setup()
@@ -82,6 +89,9 @@ let scene = new lib.Scene({
     canvas: canvas,
     backgroundColor: '#fff'
 })
+
+let updatePerspective = () => scene.camera.frustumMultiplier = params.perspective
+updatePerspective()
 
 let gradient
 let updateGradient = () => gradient = getActualGradient(canvas, params)
@@ -147,8 +157,8 @@ MultiPointHolder.prototype = {
         that.strokeStyle = gradient
         that.lastRotString = false
 
-        that.rot[0] += deg / 1000 * params.rotateSpeed + mouse.cx / 100000
-        that.rot[1] += deg / 1000 * params.rotateSpeed + mouse.cy / 100000
+        that.rot[0] += deg / 1000 * params.rotateSpeed //+ mouse.cx / 100000
+        that.rot[1] += deg / 1000 * params.rotateSpeed //+ mouse.cy / 100000
 
         for (let i = 0; i < count; i++) {
             mPoint = that.multiPoints[i]
@@ -235,7 +245,6 @@ let subHandler = function() {
 }
 
 function setup() {
-    console.log('setup')
     mphList = []
     scene.children.forEach(child => {
         if (child.type !== 'Camera') scene.remove(child)

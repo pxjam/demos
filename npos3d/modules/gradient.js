@@ -24,7 +24,6 @@ export function createGradControls(paneFolder, params) {
 let rgbFromObject = (obj) => `rgb(${obj.r}, ${obj.g}, ${obj.b})`
 
 export function getActualGradient(canvas, params) {
-    console.log('getActualGradient')
     let cw =  canvas.width
     let ch =  canvas.height
     let gradCX = (0.5 + params.gradCenter.x) * cw
