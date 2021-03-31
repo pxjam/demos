@@ -13,6 +13,7 @@
     - [TRI demo](https://pxjam.github.io/demos/out/tri/demo.html)
     - [3D Cubes](https://pxjam.github.io/demos/out/3d-cubes/)
     - [NPOS: Circles and HyperShapes](https://pxjam.github.io/demos/out/npos3d/)
+    - [NPOS: Built-in Shapes](https://pxjam.github.io/demos/out/npos3d/shapes.html)
 
 - 3d imports
     - [Globe](https://pxjam.github.io/demos/out/3d-gltf/index.html)
