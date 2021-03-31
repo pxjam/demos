@@ -3,10 +3,10 @@ import NPos3d from '../modules/npos3d'
 import {paneOptions} from '../modules/paneOptions'
 import mouse from '../modules/mouse'
 import presets from '../presets/shell'
+import {createGradControls, gradParams, getActualGradient} from '../modules/gradient'
 
 let paramsDefault = {
     rings: 14,
-    parallels: 0,
     firstRadius: 300,
     radiusStep: 0,
     points: 60,
@@ -16,8 +16,8 @@ let paramsDefault = {
     // rotateSpeed: 150
     rotateSpeed: 0,
     rotateX: 1,
-    rotateY: 1
-    //...gradParams
+    rotateY: 1,
+    ...gradParams
 }
 let params = Object.assign({}, paramsDefault)
 
@@ -30,7 +30,6 @@ let f1 = pane.addFolder({
 })
 
 f1.addInput(params, 'rings', {min: 1, max: 100, step: 1})
-// f1.addInput(params, 'parallels', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'firstRadius', {min: 1, max: 800, step: 1})
 f1.addInput(params, 'radiusStep', {min: 0, max: 200, step: 1})
 f1.addInput(params, 'points', {min: 1, max: 100, step: 1})
@@ -42,6 +41,10 @@ f1.addInput(params, 'rotateY', {min: 0, max: 2 * Math.PI, step: 0.01})
 f1.addInput(params, 'renderStyle', {
     options: paneOptions('points', 'lines', 'both')
 })
+
+f1.addSeparator()
+createGradControls(f1, params)
+
 f1.addInput({preset: 0}, 'preset', {
     options: presets.reduce((acc, val, i) => {
         acc['preset ' + (i + 1)] = i
@@ -70,13 +73,20 @@ pane.on('change', e => {
             setup()
         }, 50)
     }
+    updateGradient()
 })
 
 let lib = NPos3d
+let canvas =document.querySelector('[data-canvas]')
 let scene = new lib.Scene({
-    canvas: document.querySelector('[data-canvas]'),
+    canvas: canvas,
     backgroundColor: '#fff'
 })
+
+let gradient
+let updateGradient = () => gradient = getActualGradient(canvas, params)
+gradient = updateGradient()
+
 let mphList = []
 
 let MultiPoint = function(args) {
@@ -117,7 +127,6 @@ let MultiPointHolder = function(args) {
     }
     that.pointScale = params.pointScale
     that.multiPoints = []
-    that.parallel = args.parallel
     return that
 }
 
@@ -127,6 +136,7 @@ MultiPointHolder.prototype = {
     renderStyle: params.renderStyle,
     pointStyle: 'stroke',
     pointScale: params.pointScale,
+    strokeStyle: gradient,
 
     update: function() {
         let that = this
@@ -134,6 +144,7 @@ MultiPointHolder.prototype = {
         let mPoint
         let complete
 
+        that.strokeStyle = gradient
         that.lastRotString = false
 
         that.rot[0] += deg / 1000 * params.rotateSpeed + mouse.cx / 100000
@@ -144,14 +155,13 @@ MultiPointHolder.prototype = {
             complete = mPoint.update()
         }
 
-        if (complete) {
-            that.color = '#0f0'
-        } else {
-            that.color = '#f00'
-        }
-        that.color = '#0089ef'
-
-        if (that.parallel) that.color = 'red'
+        // if (complete) {
+        //     that.color = '#0f0'
+        // } else {
+        //     that.color = '#f00'
+        // }
+        // that.color = '#0089ef'
+        that.color = gradient
     },
 
     updateAllMultiPointAngles: function() {
