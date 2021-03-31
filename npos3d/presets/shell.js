@@ -3,7 +3,7 @@ export default [
     {"rings":30,"firstRadius":363,"radiusStep":0,"points":57,"pointScale":641.3050000000001,"rotateOffset":26.51,"rotateSpeed":424,"rotateX":0.52,"rotateY":1.9100000000000001,"renderStyle":"lines","preset":4},
     {"rings":20,"firstRadius":383,"radiusStep":0,"points":4,"pointScale":97.827,"rotateOffset":10,"rotateSpeed":12,"rotateX":0.48,"rotateY":0.7000000000000001,"renderStyle":"lines","preset":0},
     {"rings":70,"firstRadius":363,"radiusStep":2,"points":3,"pointScale":97.827,"rotateOffset":10,"rotateSpeed":12,"rotateX":0.48,"rotateY":0.7000000000000001,"renderStyle":"lines","preset":1},
-    {"rings":14,"firstRadius":300,"radiusStep":0,"points":60,"pointScale":50,"rotateOffset":10,"rotateSpeed":12,"rotateX":1,"rotateY":1,"renderStyle":"lines","preset":0},
+    {"rings":13,"firstRadius":363,"radiusStep":0,"points":57,"pointScale":641.3050000000001,"rotateOffset":26.51,"rotateSpeed":424,"rotateX":0.34,"rotateY":1.08,"renderStyle":"lines","preset":5},
     {"rings":60,"firstRadius":363,"radiusStep":0,"points":57,"pointScale":641.3050000000001,"rotateOffset":26.51,"rotateSpeed":424,"rotateX":1.02,"rotateY":1.9100000000000001,"renderStyle":"lines","preset":4},
     {"rings":32,"firstRadius":2,"radiusStep":15,"points":4,"pointScale":641.3050000000001,"rotateOffset":81.71000000000001,"rotateSpeed":24,"rotateX":0,"rotateY":1.42,"renderStyle":"lines","preset":4},
     {"rings":41,"firstRadius":251,"radiusStep":6,"points":5,"pointScale":641.3050000000001,"rotateOffset":81.71000000000001,"rotateSpeed":24,"rotateX":0,"rotateY":1,"renderStyle":"lines","preset":5},
