@@ -1,7 +1,7 @@
 import Tweakpane from 'tweakpane'
 import NPos3d from '../modules/npos3d'
 import {paneOptions} from '../modules/paneOptions'
-// import presets from "../presets/shell"
+import presets from "../presets/shapes"
 
 // init tweakpane
 
@@ -16,8 +16,8 @@ let paramsDefault = {
     twistAxis: 0,
     lathe: false,
     latheAxis: 0,
-    rotateStrength: 5,
-    moveStrength: 5,
+    rotateStrength: 20,
+    moveStrength: 20,
 }
 let params = Object.assign({}, paramsDefault)
 
@@ -33,7 +33,7 @@ f1.addInput(params, 'shape', {
     options: paneOptions('sphere', 'cube', 'axies', 'font', 'circle')
 })
 f1.addInput(params, 'text')
-f1.addInput(params, 'fontSize', {min: 10, max: 100, step: 1 })
+f1.addInput(params, 'fontSize', {min: 10, max: 100, step: 1})
 f1.addInput(params, 'scaleX', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'scaleY', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'scaleZ', {min: 1, max: 100, step: 1})
@@ -41,16 +41,35 @@ f1.addInput(params, 'twist')
 f1.addInput(params, 'twistAxis', {min: 0, max: 2, step: 1})
 f1.addInput(params, 'lathe')
 f1.addInput(params, 'latheAxis', {min: 0, max: 2, step: 1})
-f1.addInput(params, 'rotateStrength', {min: 1, max: 100, step: 1})
-f1.addInput(params, 'moveStrength', {min: 1, max: 10, step: 1})
+f1.addInput(params, 'rotateStrength', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'moveStrength', {min: 0, max: 100, step: 1})
+f1.addInput({preset: 0}, 'preset', {
+    options: presets.reduce((acc, val, i) => {
+        acc['preset ' + (i + 1)] = i
+        return acc
+    }, {})
+})
+
+if (presets.length) {
+    Object.assign(params, paramsDefault, presets[0])
+    pane.refresh()
+}
+
+let saveBtn = f1.addButton({title: 'Copy preset'})
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())))
 
 let presetTimer
 
-pane.on('change', () => {
-    clearTimeout(presetTimer)
-    presetTimer = setTimeout(() => {
-        setup()
-    }, 50)
+pane.on('change', (e) => {
+    if (e.presetKey === 'preset') {
+        Object.assign(params, paramsDefault, presets[e.value])
+        pane.refresh()
+    } else {
+        clearTimeout(presetTimer)
+        presetTimer = setTimeout(() => {
+            setup()
+        }, 50)
+    }
 })
 
 // init scene
@@ -76,8 +95,8 @@ function setup() {
         let t = this
         t.rot[0] = -scene.mpos.y * params.rotateStrength / 10000
         t.rot[1] = scene.mpos.x * params.rotateStrength / 10000
-        t.pos[0] = scene.mpos.x * params.moveStrength / 10
-        t.pos[1] = scene.mpos.y * params.moveStrength / 10
+        t.pos[0] = scene.mpos.x * params.moveStrength / 100
+        t.pos[1] = scene.mpos.y * params.moveStrength / 100
     }
 
     scene.add(mesh)
