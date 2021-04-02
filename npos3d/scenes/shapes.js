@@ -6,15 +6,21 @@ import presets from "../presets/shapes"
 // init tweakpane
 
 let paramsDefault = {
+    fade: true,
     shape: 'Sphere',
     text: 'en',
     fontSize: 10,
     scaleX: 15,
     scaleY: 15,
     scaleZ: 15,
+    segments: 24,
+    rings: 16,
     twist: false,
+    twistFactor: Math.round(Math.PI * 200) / 100,
     twistAxis: 0,
     lathe: false,
+    latheFrac: Math.round(Math.PI * 200) / 100,
+    latheSegments: 12,
     latheAxis: 0,
     rotateStrength: 20,
     moveStrength: 20,
@@ -29,6 +35,7 @@ let f1 = pane.addFolder({
     expanded: false
 })
 
+f1.addInput(params, 'fade')
 f1.addInput(params, 'shape', {
     options: paneOptions('sphere', 'cube', 'axies', 'font', 'circle')
 })
@@ -37,9 +44,14 @@ f1.addInput(params, 'fontSize', {min: 10, max: 100, step: 1})
 f1.addInput(params, 'scaleX', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'scaleY', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'scaleZ', {min: 1, max: 100, step: 1})
+f1.addInput(params, 'segments', {min: 1, max: 100, step: 1})
+f1.addInput(params, 'rings', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'twist')
 f1.addInput(params, 'twistAxis', {min: 0, max: 2, step: 1})
+f1.addInput(params, 'twistFactor', {min: 0, max: Math.round(Math.PI * 400) / 100, step: .01})
 f1.addInput(params, 'lathe')
+f1.addInput(params, 'latheFrac', {min: 0, max: Math.round(Math.PI * 400) / 100, step: .01})
+f1.addInput(params, 'latheSegments', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'latheAxis', {min: 0, max: 2, step: 1})
 f1.addInput(params, 'rotateStrength', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'moveStrength', {min: 0, max: 100, step: 1})
@@ -48,6 +60,11 @@ f1.addInput({preset: 0}, 'preset', {
         acc['preset ' + (i + 1)] = i
         return acc
     }, {})
+})
+
+// close pane with escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape" || e.key === "Esc") f1.expanded = false
 })
 
 if (presets.length) {
@@ -75,11 +92,12 @@ pane.on('change', (e) => {
 // init scene
 
 let lib = NPos3d
-let scene = new lib.Scene({
+window.scene = new lib.Scene({
     canvas: document.querySelector('[data-canvas]'),
     backgroundColor: '#fff'
 })
 
+let color = 'purple'
 setup()
 
 // function declarations
@@ -89,6 +107,13 @@ function setup() {
     scene.children.forEach(child => {
         if (child.type !== 'Camera') scene.remove(child)
     })
+
+    if (params.fade) {
+        let r1 = Math.max(scene.h, scene.w)
+        color = scene.c.createRadialGradient(0, 0, 0, 0, 0, r1 / 2)
+        color.addColorStop(0, 'purple')
+        color.addColorStop(1, 'transparent')
+    } else color = 'purple'
 
     let mesh = createMesh()
     mesh.update = function () {
@@ -106,10 +131,10 @@ function createMesh() {
     let shape
     switch (params.shape) {
         case 'sphere':
-            shape = new lib.Geom.Sphere({radius: 10})
+            shape = new lib.Geom.Sphere({radius: 10, segments: params.segments, rings: params.rings})
             break
         case 'circle':
-            shape = new lib.Geom.Circle({radius: 10})
+            shape = new lib.Geom.Circle({radius: 10, segments: params.segments})
             break
         case 'axies':
             shape = lib.Geom.axies
@@ -124,14 +149,19 @@ function createMesh() {
             shape = lib.Geom.cube
     }
 
-    if (params.twist) shape = new lib.Geom.Twist({shape, axis: params.twistAxis})
-    if (params.lathe) shape = new lib.Geom.Lathe({shape, axis: params.latheAxis})
+    if (params.twist) shape = new lib.Geom.Twist({shape, axis: params.twistAxis, factor: params.twistFactor})
+    if (params.lathe) shape = new lib.Geom.Lathe({
+        shape,
+        axis: params.latheAxis,
+        frac: params.latheFrac,
+        segments: params.latheSegments
+    })
 
     return new lib.Ob3D({
         shape,
         pos: [0, 0, 0],
         rot: [0, 0, 0],
         scale: [params.scaleX, params.scaleY, params.scaleZ],
-        color: '#0089ef'
+        color: color
     })
 }

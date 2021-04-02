@@ -1,4 +1,9 @@
 export default [
-    {"shape":"sphere","text":"en","fontSize":10,"scaleX":15,"scaleY":15,"scaleZ":15,"twist":false,"twistAxis":0,"lathe":false,"latheAxis":0,"rotateStrength":20,"moveStrength":20,"preset":0},
-    {"shape":"cube","text":"en","fontSize":10,"scaleX":15,"scaleY":15,"scaleZ":15,"twist":false,"twistAxis":0,"lathe":true,"latheAxis":2,"rotateStrength":20,"moveStrength":20,"preset":0}
+    {"shape":"sphere","text":"en","fontSize":10,"scaleX":15,"scaleY":15,"scaleZ":15,"segments":24,"rings":16,"twist":false,"twistAxis":0,"twistFactor":6.28,"lathe":false,"latheFrac":6.28,"latheSegments":12,"latheAxis":0,"rotateStrength":50,"moveStrength":100,"preset":0},
+    {"shape":"cube","text":"en","fontSize":10,"scaleX":15,"scaleY":15,"scaleZ":15,"segments":100,"rings":16,"twist":false,"twistAxis":0,"twistFactor":6.28,"lathe":true,"latheFrac":4.86,"latheSegments":17,"latheAxis":2,"rotateStrength":50,"moveStrength":100,"preset":1},
+    {"shape":"sphere","text":"en","fontSize":10,"scaleX":15,"scaleY":15,"scaleZ":15,"segments":3,"rings":66,"twist":true,"twistAxis":1,"twistFactor":6.28,"lathe":false,"latheFrac":4.86,"latheSegments":17,"latheAxis":2,"rotateStrength":50,"moveStrength":100,"preset":2},
+    {"shape":"sphere","text":"en","fontSize":10,"scaleX":15,"scaleY":15,"scaleZ":15,"segments":2,"rings":59,"twist":true,"twistAxis":1,"twistFactor":1.09,"lathe":false,"latheFrac":0.8200000000000001,"latheSegments":12,"latheAxis":0,"rotateStrength":49,"moveStrength":15,"preset":0},
+    {"shape":"cube","text":"en","fontSize":10,"scaleX":15,"scaleY":15,"scaleZ":35,"segments":16,"rings":11,"twist":true,"twistAxis":2,"twistFactor":8.2,"lathe":true,"latheFrac":0,"latheSegments":23,"latheAxis":2,"rotateStrength":20,"moveStrength":0,"preset":0},
+    {"shape":"font","text":"8","fontSize":10,"scaleX":35,"scaleY":35,"scaleZ":35,"segments":24,"rings":16,"twist":false,"twistAxis":0,"twistFactor":0,"lathe":true,"latheFrac":3.49,"latheSegments":10,"latheAxis":0,"rotateStrength":51,"moveStrength":75,"preset":0}
+
 ]

@@ -719,6 +719,7 @@ NPos3d.Scene.prototype = {
         t.lw = t.w
         t.lh = t.h
         if (t.isMobile) {
+            // Эта функция убивает производительность на мобилке. Нужно выяснить, что именно она делает
             t.handleViewportShenanigans()
         }
     },
