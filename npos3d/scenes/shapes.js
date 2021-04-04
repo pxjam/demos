@@ -1,18 +1,19 @@
 import Tweakpane from 'tweakpane'
 import NPos3d from '../modules/npos3d'
 import {paneOptions} from '../modules/paneOptions'
-import presets from "../presets/shapes"
+import presets from '../presets/shapes'
+import mouse from '../modules/mouse'
 
 // init tweakpane
 
 let paramsDefault = {
-    fade: true,
+    // fade: true,
     shape: 'Sphere',
-    text: 'en',
-    fontSize: 10,
-    scaleX: 15,
-    scaleY: 15,
-    scaleZ: 15,
+    // text: 'en',
+    // fontSize: 10,
+    scaleX: 30,
+    scaleY: 30,
+    scaleZ: 30,
     segments: 24,
     rings: 16,
     twist: false,
@@ -24,6 +25,14 @@ let paramsDefault = {
     latheAxis: 0,
     rotateStrength: 20,
     moveStrength: 20,
+    inertia: .05,
+
+    color1: {r: 186, g: 0, b: 250},
+    color2: {r: 0, g: 126, b: 255},
+    color3: {r: 0, g: 251, b: 235},
+    gradCenter: {x: 0.5, y: 0.5},
+    gradRadius: 1,
+    gradMiddlePoint: 0.5,
 }
 let params = Object.assign({}, paramsDefault)
 
@@ -35,12 +44,12 @@ let f1 = pane.addFolder({
     expanded: false
 })
 
-f1.addInput(params, 'fade')
+// f1.addInput(params, 'fade')
 f1.addInput(params, 'shape', {
-    options: paneOptions('sphere', 'cube', 'axies', 'font', 'circle')
+    options: paneOptions('sphere', 'cube', 'circle')
 })
-f1.addInput(params, 'text')
-f1.addInput(params, 'fontSize', {min: 10, max: 100, step: 1})
+// f1.addInput(params, 'text')
+// f1.addInput(params, 'fontSize', {min: 10, max: 100, step: 1})
 f1.addInput(params, 'scaleX', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'scaleY', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'scaleZ', {min: 1, max: 100, step: 1})
@@ -55,6 +64,16 @@ f1.addInput(params, 'latheSegments', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'latheAxis', {min: 0, max: 2, step: 1})
 f1.addInput(params, 'rotateStrength', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'moveStrength', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'inertia', {min: 0, max: 1, step: .01})
+f1.addInput(params, 'color1')
+f1.addInput(params, 'color2')
+f1.addInput(params, 'color3')
+f1.addInput(params, 'gradCenter', {
+    x: {min: -1, max: 1, step: 0.01},
+    y: {min: -1, max: 1, step: 0.01}
+})
+f1.addInput(params, 'gradRadius', {min: 0, max: 2, step: 0.01})
+f1.addInput(params, 'gradMiddlePoint', {min: 0, max: 1, step: 0.01})
 f1.addInput({preset: 0}, 'preset', {
     options: presets.reduce((acc, val, i) => {
         acc['preset ' + (i + 1)] = i
@@ -97,31 +116,25 @@ window.scene = new lib.Scene({
     backgroundColor: '#fff'
 })
 
-let color = 'purple'
+let gradient = 'purple'
 setup()
 
 // function declarations
 
 function setup() {
     console.log('setup')
+    mouse.inertia = params.inertia
     scene.children.forEach(child => {
         if (child.type !== 'Camera') scene.remove(child)
     })
 
-    if (params.fade) {
-        let r1 = Math.max(scene.h, scene.w)
-        color = scene.c.createRadialGradient(0, 0, 0, 0, 0, r1 / 2)
-        color.addColorStop(0, 'purple')
-        color.addColorStop(1, 'transparent')
-    } else color = 'purple'
-
     let mesh = createMesh()
     mesh.update = function () {
         let t = this
-        t.rot[0] = -scene.mpos.y * params.rotateStrength / 10000
-        t.rot[1] = scene.mpos.x * params.rotateStrength / 10000
-        t.pos[0] = scene.mpos.x * params.moveStrength / 100
-        t.pos[1] = scene.mpos.y * params.moveStrength / 100
+        t.rot[0] = -mouse.cy * params.rotateStrength / 100000
+        t.rot[1] = mouse.cx * params.rotateStrength / 100000
+        t.pos[0] = mouse.cx * params.moveStrength / 100
+        t.pos[1] = mouse.cy * params.moveStrength / 100
     }
 
     scene.add(mesh)
@@ -136,15 +149,15 @@ function createMesh() {
         case 'circle':
             shape = new lib.Geom.Circle({radius: 10, segments: params.segments})
             break
-        case 'axies':
-            shape = lib.Geom.axies
-            break
-        case 'font':
-            shape = new lib.VText({
-                string: params.text,
-                fontSize: params.fontSize,
-            }).shape
-            break
+        // case 'axies':
+        //     shape = lib.Geom.axies
+        //     break
+        // case 'font':
+        //     shape = new lib.VText({
+        //         string: params.text,
+        //         fontSize: params.fontSize,
+        //     }).shape
+        //     break
         default:
             shape = lib.Geom.cube
     }
@@ -162,6 +175,24 @@ function createMesh() {
         pos: [0, 0, 0],
         rot: [0, 0, 0],
         scale: [params.scaleX, params.scaleY, params.scaleZ],
-        color: color
+        color: createGradient()
     })
+}
+
+function createGradient() {
+    let r1 = Math.max(scene.h, scene.w)
+    let gradCX = params.gradCenter.x
+    let gradCY = params.gradCenter.y
+
+    let gradient = scene.c.createRadialGradient(gradCX, gradCY, 0, gradCX, gradCY, params.gradRadius * r1)
+
+    let color1 = `rgb(${params.color1.r}, ${params.color1.g}, ${params.color1.b})`
+    let color2 = `rgba(${params.color2.r}, ${params.color2.g}, ${params.color2.b})`
+    let color3 = `rgba(${params.color3.r}, ${params.color3.g}, ${params.color3.b})`
+
+    gradient.addColorStop(0, color1)
+    gradient.addColorStop(params.gradMiddlePoint, color2)
+    gradient.addColorStop(1, color3)
+
+    return gradient
 }
