@@ -5,7 +5,7 @@ import getPreset from '../common/utils/getPreset'
 
 let paramsDefault = {
     firstCubeSize: 50,
-    cubesCount: 12,
+    cubesCount: 1,
     // firstCubeSize: 5,
     // cubesCount: 10,
     backfaceVisible: false,
@@ -19,6 +19,7 @@ let paramsDefault = {
     // stepRotate: 1.1,
     innerRotateSpeed: 15,
     revertInnerRotate: false,
+    mouseRotatePower: 25,
     mouseRotateInertia: 200,
     zoom: 1,
     size: 1.2,
@@ -52,6 +53,7 @@ f1.addInput(params, 'autorotate')
 f1.addInput(params, 'autorotateSpeed', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'revertInnerRotate')
 f1.addInput(params, 'innerRotateSpeed', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'mouseRotatePower', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'mouseRotateInertia', {min: 1, max: 1000, step: 1})
 f1.addInput(params, 'centerX', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'centerY', {min: 0, max: 1, step: 0.01})
@@ -116,6 +118,9 @@ let angleX = 0
 let angleZ = 0
 let destroy = false
 let running = true
+
+// to except drawing same edge twice
+let drawnLines = []
 // fov
 // let perspective = 1000
 // let zoom = 1000
@@ -170,14 +175,12 @@ let Face = function(cube, index, normalVector) {
 
 Face.prototype = {
     faceVisible: function() {
-        if (params.backfaceVisible) {
-            this.visible = true
-            return true
-        }
-
         // points visible
         if (this.p0.visible && this.p1.visible && this.p2.visible && this.p3.visible) {
-
+            if (params.backfaceVisible) {
+                this.visible = true
+                return true
+            }
 
             // back face culling
             if ((this.p1.Y - this.p0.Y) / (this.p1.X - this.p0.X) < (this.p2.Y - this.p0.Y) / (this.p2.X - this.p0.X) ^ this.p0.X < this.p1.X == this.p0.X > this.p2.X) {
@@ -206,12 +209,39 @@ Face.prototype = {
         let g
         let b
 
+        // TODO пока отключил не успеваю
+        // TODO замерить производительность и посмотреть можно ли оптимизировать код
+        let drawSingleLine = (line) => {
+            let lineSum = line.reduce((acc, val) => acc + val)
+
+            if (drawnLines.indexOf(lineSum) === -1) {
+                drawnLines.push(lineSum)
+            } else {
+                ctx.globalAlpha = 0
+                //console.log('skip line')
+                //ctx.moveTo(line[2], line[3])
+            }
+            ctx.lineTo(line[2], line[3])
+            ctx.globalAlpha = 1
+        }
+
         // shape face
         ctx.beginPath()
+
         ctx.moveTo(this.p0.X, this.p0.Y)
-        ctx.lineTo(this.p1.X, this.p1.Y)
-        ctx.lineTo(this.p2.X, this.p2.Y)
-        ctx.lineTo(this.p3.X, this.p3.Y)
+
+        let line = [this.p0.X, this.p0.Y, this.p1.X, this.p1.Y]
+        drawSingleLine(line)
+
+        line = [line[2], line[3], this.p2.X, this.p2.Y]
+        drawSingleLine(line)
+
+        line = [line[2], line[3], this.p3.X, this.p3.Y]
+        drawSingleLine(line)
+
+        line = [line[2], line[3], this.p0.X, this.p0.Y]
+        drawSingleLine(line)
+
         ctx.closePath()
 
         // flat (lambert) shading
@@ -344,8 +374,8 @@ let init = function() {
 
         // detectFaceOver()
         if (drag) {
-            cx = cxb + (xm - startX)
-            cy = cyb - (ym - startY)
+            cx = cxb + (xm - startX) * params.mouseRotatePower / 100
+            cy = cyb - (ym - startY) * params.mouseRotatePower / 100
             //console.log(cx)
         }
 
@@ -364,7 +394,7 @@ let init = function() {
 
     box.onmousewheel = function(e) {
         if (!running) return true
-        cz += e.wheelDelta
+        cz += e.wheelDelta / 3
         return false
     }
 
@@ -380,6 +410,8 @@ let init = function() {
 
 // main loop
 let run = function() {
+    drawnLines = []
+
     if (params.gradPreview) {
         ctx.fillStyle = gradient
         ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -448,6 +480,7 @@ let run = function() {
             } else break
         }
     }
+    // console.log(drawnLines)
     fps++
     if (running) requestAnimationFrame(run)
 }
