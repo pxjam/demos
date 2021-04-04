@@ -1,16 +1,29 @@
 import Tweakpane from 'tweakpane'
-import {createGradControls, gradParams, getActualGradient} from './modules/gradient'
+import {createGradControls, getActualGradient, gradParams} from './modules/gradient'
+import presets from './presets/index'
+// import jsonRound from '../common/utils/jsonRound'
+//
+// window.jsonRound = jsonRound
 
 let paramsDefault = {
-    firstCubeSize: 14,
-    cubesCount: 25,
-
+    firstCubeSize: 50,
+    cubesCount: 12,
     // firstCubeSize: 5,
     // cubesCount: 10,
-    bgLight: false,
-    duplicateMethod: 'multiply',
-    duplicateFactor: 1.15,
-    framesOverlay: 0.92,
+    backfaceVisible: false,
+    bgLight: true,
+    duplicateMethod: 'sum',
+    duplicateFactor: 0.4,
+    framesOverlay: 0,
+    perspective: 1500,
+    autorotate: true,
+    autorotateSpeed: 25,
+    // stepRotate: 1.1,
+    innerRotateSpeed: 15,
+    revertInnerRotate: false,
+    mouseRotateInertia: 200,
+    zoom: 1,
+    size: 1.2,
     ...gradParams
 }
 let params = Object.assign({}, paramsDefault)
@@ -30,17 +43,39 @@ function reduceArrayToObject(acc, curr) {
 
 f1.addInput(params, 'firstCubeSize', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'cubesCount', {min: 1, max: 50, step: 1})
-f1.addInput(params, 'duplicateFactor', {min: 0.5, max: 3, step: 0.001})
-f1.addInput(params, 'bgLight')
-f1.addInput(params, 'framesOverlay', {min: 0, max: 1, step: 0.01})
+f1.addInput(params, 'duplicateFactor', {min: 0.01, max: 3, step: 0.001})
 f1.addInput(params, 'duplicateMethod', {
-    options: ['sum', 'multiply', 'exponent'].reduce(reduceArrayToObject, {})
+    options: ['sum', 'multiply'].reduce(reduceArrayToObject, {})
 })
+f1.addInput(params, 'backfaceVisible')
+f1.addInput(params, 'autorotate')
+f1.addInput(params, 'autorotateSpeed', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'revertInnerRotate')
+f1.addInput(params, 'innerRotateSpeed', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'mouseRotateInertia', {min: 1, max: 1000, step: 1})
+f1.addInput(params, 'perspective', {min: 0, max: 3000, step: 1})
+// f1.addInput(params, 'zoom', {min: 0, max: 1000, step: 1})
+f1.addInput(params, 'size', {min: 0.1, max: 4, step: 0.1})
+f1.addInput(params, 'framesOverlay', {min: 0, max: 1, step: 0.01})
 f1.addSeparator()
 createGradControls(f1, params)
 
-document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
+f1.addInput({preset: 0}, 'preset', {
+    options: presets.reduce((acc, val, i) => {
+        acc['preset ' + (i + 1)] = i
+        return acc
+    }, {})
+})
 
+if (presets.length) {
+    Object.assign(params, paramsDefault, presets[0])
+    pane.refresh()
+}
+
+let saveBtn = f1.addButton({title: 'Copy preset'})
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())))
+
+document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
 
 let box
 let canvas
@@ -77,12 +112,11 @@ let minZ
 let angleY = 0
 let angleX = 0
 let angleZ = 0
-let autorotate = false
 let destroy = false
 let running = true
 // fov
-let fl = 250
-let zoom = 0
+// let perspective = 1000
+// let zoom = 1000
 
 let gradient
 
@@ -105,11 +139,11 @@ Point.prototype.projection = function() {
     if (this.project) {
         // point visible
         if (z < minZ) minZ = z
-        this.visible = (zoom + z > 0)
+        this.visible = (params.zoom + z > 0)
 
         // 3D to 2D projection
-        this.X = (canvasW * 0.5) + x * (fl / (z + zoom))
-        this.Y = (canvasH * 0.5) + y * (fl / (z + zoom))
+        this.X = (canvasW * 0.5) + x * (params.perspective / (z + params.zoom))
+        this.Y = (canvasH * 0.5) + y * (params.perspective / (z + params.zoom))
     }
 }
 
@@ -134,8 +168,15 @@ let Face = function(cube, index, normalVector) {
 
 Face.prototype = {
     faceVisible: function() {
+        if (params.backfaceVisible) {
+            this.visible = true
+            return true
+        }
+
         // points visible
         if (this.p0.visible && this.p1.visible && this.p2.visible && this.p3.visible) {
+
+
             // back face culling
             if ((this.p1.Y - this.p0.Y) / (this.p1.X - this.p0.X) < (this.p2.Y - this.p0.Y) / (this.p2.X - this.p0.X) ^ this.p0.X < this.p1.X == this.p0.X > this.p2.X) {
                 // face visible
@@ -154,7 +195,7 @@ Face.prototype = {
         // distance to camera
         let dx = (this.p0.x + this.p1.x + this.p2.x + this.p3.x) * 0.25
         let dy = (this.p0.y + this.p1.y + this.p2.y + this.p3.y) * 0.25
-        let dz = (zoom + fl) + (this.p0.z + this.p1.z + this.p2.z + this.p3.z) * 0.25
+        let dz = (params.zoom + params.perspective) + (this.p0.z + this.p1.z + this.p2.z + this.p3.z) * 0.25
         this.distance = Math.sqrt(dx * dx + dy * dy + dz * dz)
     },
 
@@ -269,8 +310,6 @@ function reset() {
             size += params.duplicateFactor * params.firstCubeSize
         } else if (params.duplicateMethod === 'multiply') {
             size *= params.duplicateFactor
-        } else if (params.duplicateMethod === 'exponent') {
-            size **= params.duplicateFactor
         }
     }
 }
@@ -340,10 +379,6 @@ let init = function() {
         alpha = this.checked
     }
 
-    document.getElementById('autor').onchange = function() {
-        autorotate = this.checked
-    }
-
     document.getElementById('stopgo').onclick = function() {
         running = !running
         document.getElementById('stopgo').value = running ? 'STOP' : 'GO!'
@@ -354,6 +389,7 @@ let init = function() {
     updateGradient()
     roundParams()
     run()
+    updatePerspective()
 }
 
 // main loop
@@ -367,32 +403,44 @@ let run = function() {
         ctx.fillStyle = `rgba(${bg}, ${1 - params.framesOverlay})`
         ctx.fillRect(0, 0, canvasW, canvasH)
 
-        // easing rotations
-        angleX += ((cy - angleX) * 0.001)
-        angleY += ((cx - angleY) * 0.001)
-        angleZ += ((cz - angleZ) * 0.001)
-        if (autorotate) cz += 1
-
-        // pre-calculating trigo
-        cosY = Math.cos(angleY * 0.01)
-        sinY = Math.sin(angleY * 0.01)
-        cosX = Math.cos(angleX * 0.01)
-        sinX = Math.sin(angleX * 0.01)
-        cosZ = Math.cos(angleZ * 0.01)
-        sinZ = Math.sin(angleZ * 0.01)
 
         // points projection
         minZ = 0
-        let i = 0, c
+        let i = 0
+        let c
+
         while (c = cubes[i++]) {
+            // easing rotations
+            angleX += ((cy - angleX) / params.mouseRotateInertia)
+            angleY += ((cx - angleY) / params.mouseRotateInertia)
+            angleZ += ((cz - angleZ) / params.mouseRotateInertia)
+
+            let rotateFactor = (params.revertInnerRotate)
+                ? (params.cubesCount - i + 1)
+                : i
+
+            let innerRotateSpeed = params.innerRotateSpeed / 100000
+
+            // pre-calculating trigo
+            cosY = Math.cos(angleY * innerRotateSpeed * rotateFactor)
+            sinY = Math.sin(angleY * innerRotateSpeed * rotateFactor)
+            cosX = Math.cos(angleX * innerRotateSpeed * rotateFactor)
+            sinX = Math.sin(angleX * innerRotateSpeed * rotateFactor)
+            cosZ = Math.cos(angleZ * innerRotateSpeed * rotateFactor)
+            sinZ = Math.sin(angleZ * innerRotateSpeed * rotateFactor)
+
             let j = 0, p
             while (p = c.points[j++]) {
                 p.projection()
             }
         }
-        // adapt zoom
-        let d = -minZ + 100 - zoom
-        zoom += (d * ((d > 0) ? 0.05 : 0.01))
+
+        // if (params.autorotate) cz += 1
+        if (params.autorotate) cz += params.autorotateSpeed / 10
+
+        // adapt params.zoom
+        // let d = -minZ + 100 - params.zoom
+        // params.zoom += (d * ((d > 0) ? 0.05 : 0.01))
 
         // faces light
         let j = 0, f
@@ -420,6 +468,9 @@ let run = function() {
 
 let updateGradient = () => gradient = getActualGradient(canvas, params)
 
+let updatePerspective = () => params.zoom = params.perspective * params.size
+// let updatePerspective = () => params.perspective = params.zoom  * params.size
+
 let roundParams = () => {
     for (let [key, value] of Object.entries(params)) {
         if (!isNaN(parseFloat(value)) && isFinite(value)) {
@@ -437,9 +488,11 @@ window.pane.on('change', (e) => {
     //         resize()
     //     }
     // })
+    updatePerspective()
     roundParams()
     reset()
     updateGradient()
+    // pane.refresh()
 })
 
 init()

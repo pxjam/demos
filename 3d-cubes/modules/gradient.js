@@ -1,9 +1,9 @@
 export let gradParams = {
-    gradCenter: {x: 0.5, y: 0.5},
-    gradRadius: 1,
+    gradCenter: {x: 0.37, y: 0.37},
+    gradRadius: 0.8,
     gradMiddlePoint: 0.5,
-    gradColor1: {r: 250, g: 120, b: 20},
-    gradColor2: {r: 186, g: 0, b: 250},
+    gradColor1: {r: 186, g: 0, b: 250},
+    gradColor2: {r: 20, g: 110, b: 250},
     gradColor3: {r: 0, g: 251, b: 235},
     gradPreview: false,
 }

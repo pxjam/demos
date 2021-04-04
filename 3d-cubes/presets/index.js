@@ -1,0 +1,3 @@
+export default [
+    {"firstCubeSize":50,"cubesCount":12,"duplicateFactor":0.4,"duplicateMethod":"sum","backfaceVisible":false,"autorotate":true,"autorotateSpeed":25,"revertInnerRotate":false,"innerRotateSpeed":15,"mouseRotateInertia":200,"perspective":1500,"size":1.2,"framesOverlay":0,"gradCenter":{"x":0.37,"y":0.37},"gradRadius":0.8,"gradMiddlePoint":0.5,"gradColor1":{"r":186,"g":0,"b":250},"gradColor2":{"r":20,"g":110,"b":250},"gradColor3":{"r":0,"g":251,"b":235},"gradPreview":false,"preset":0}
+]
