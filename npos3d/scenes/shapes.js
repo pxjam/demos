@@ -2,6 +2,7 @@ import Tweakpane from 'tweakpane'
 import NPos3d from '../modules/npos3d'
 import {paneOptions} from '../modules/paneOptions'
 import presets from '../presets/shapes'
+import getPreset from '../../common/utils/getPreset'
 import mouse from '../modules/mouse'
 
 // init tweakpane
@@ -92,7 +93,7 @@ if (presets.length) {
 }
 
 let saveBtn = f1.addButton({title: 'Copy preset'})
-saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())))
+saveBtn.on('click', () => navigator.clipboard.writeText(getPreset(pane.exportPreset())))
 
 let presetTimer
 

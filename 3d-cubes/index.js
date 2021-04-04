@@ -1,9 +1,7 @@
 import Tweakpane from 'tweakpane'
 import {createGradControls, getActualGradient, gradParams} from './modules/gradient'
 import presets from './presets/index'
-// import jsonRound from '../common/utils/jsonRound'
-//
-// window.jsonRound = jsonRound
+import getPreset from '../common/utils/getPreset'
 
 let paramsDefault = {
     firstCubeSize: 50,
@@ -24,6 +22,8 @@ let paramsDefault = {
     mouseRotateInertia: 200,
     zoom: 1,
     size: 1.2,
+    centerX: 0.5,
+    centerY: 0.5,
     ...gradParams
 }
 let params = Object.assign({}, paramsDefault)
@@ -53,6 +53,8 @@ f1.addInput(params, 'autorotateSpeed', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'revertInnerRotate')
 f1.addInput(params, 'innerRotateSpeed', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'mouseRotateInertia', {min: 1, max: 1000, step: 1})
+f1.addInput(params, 'centerX', {min: 0, max: 1, step: 0.01})
+f1.addInput(params, 'centerY', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'perspective', {min: 0, max: 3000, step: 1})
 // f1.addInput(params, 'zoom', {min: 0, max: 1000, step: 1})
 f1.addInput(params, 'size', {min: 0.1, max: 4, step: 0.1})
@@ -73,7 +75,7 @@ if (presets.length) {
 }
 
 let saveBtn = f1.addButton({title: 'Copy preset'})
-saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())))
+saveBtn.on('click', () => navigator.clipboard.writeText(getPreset(pane.exportPreset())))
 
 document.querySelector('.box').addEventListener('click', () => f1.expanded = false)
 
@@ -142,8 +144,8 @@ Point.prototype.projection = function() {
         this.visible = (params.zoom + z > 0)
 
         // 3D to 2D projection
-        this.X = (canvasW * 0.5) + x * (params.perspective / (z + params.zoom))
-        this.Y = (canvasH * 0.5) + y * (params.perspective / (z + params.zoom))
+        this.X = (canvasW * params.centerX) + x * (params.perspective / (z + params.zoom))
+        this.Y = (canvasH * params.centerY) + y * (params.perspective / (z + params.zoom))
     }
 }
 
@@ -368,22 +370,6 @@ let init = function() {
 
     resize()
     window.addEventListener('resize', resize, false)
-
-    // fps count
-    setInterval(function() {
-        document.getElementById('fps').innerHTML = fps * 2
-        fps = 0
-    }, 500) // update every 1/2 seconds
-
-    document.getElementById('alpha').onchange = function() {
-        alpha = this.checked
-    }
-
-    document.getElementById('stopgo').onclick = function() {
-        running = !running
-        document.getElementById('stopgo').value = running ? 'STOP' : 'GO!'
-        if (running) run()
-    }
 
     reset()
     updateGradient()
