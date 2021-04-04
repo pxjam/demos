@@ -30,8 +30,8 @@ let paramsDefault = {
     color1: {r: 186, g: 0, b: 250},
     color2: {r: 0, g: 126, b: 255},
     color3: {r: 0, g: 251, b: 235},
-    gradCenter: {x: 0.5, y: 0.5},
-    gradRadius: 1,
+    gradCenter: {x: 0.37, y: 0.37},
+    gradRadius: 0.8,
     gradMiddlePoint: 0.5,
 }
 let params = Object.assign({}, paramsDefault)
@@ -181,8 +181,8 @@ function createMesh() {
 
 function createGradient() {
     let r1 = Math.max(scene.h, scene.w)
-    let gradCX = params.gradCenter.x
-    let gradCY = params.gradCenter.y
+    let gradCX = params.gradCenter.x * scene.w
+    let gradCY = params.gradCenter.y * scene.h
 
     let gradient = scene.c.createRadialGradient(gradCX, gradCY, 0, gradCX, gradCY, params.gradRadius * r1)
 

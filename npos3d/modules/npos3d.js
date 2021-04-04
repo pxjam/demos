@@ -1166,6 +1166,7 @@ NPos3d.Camera.prototype = {
     update: function() {
         let t = this
         t.pos[2] = Math.max(t.scene.w, t.scene.h) * t.frustumMultiplier
+        // console.log(t.frustumMultiplier)
         // RECIPROCAL width / height of the frustum at ONE unit away from the camera
         // this arranges it so that it is exactly the right number of pixels where z=0, given where the camera is now
     },
@@ -1404,124 +1405,6 @@ NPos3d.Geom.font = {
     '~': {'points': [[1, 1], [1, 3], [2, 2], [0, 2]], 'lines': [[0, 1], [0, 3], [1, 2]]}
 }
 
-//VectorText generation! Weeeeeeeeeeeee!!!
-
-NPos3d.VText = function(args) {
-    var t = this, type = 'VText'
-    if (t.type !== type) {
-        throw 'You must use the `new` keyword when invoking the ' + type + ' constructor.'
-    }
-    args = args || {}
-    NPos3d.blessWith3DBase(t, args)
-    t.string = args.string || 'NEED INPUT'
-    t.textAlign = args.textAlign || 'center'
-    t.characterWidth = 2 //This is set static because of the design of the font.
-    t.characterHeight = 4 //This is set static because of the design of the font.
-    t.characterHeightOffset = 2 //This is set static because of the design of the font.
-    t.letterSpacing = args.letterSpacing || 1
-    t.lineHeight = args.lineHeight || 6
-    t.fontSize = args.fontSize || 32
-    t.shape = {
-        points: [],
-        lines: []
-    }
-    t.stringCached = false
-    t.font = args.font || NPos3d.Geom.font
-    t.cacheTextGeom()
-}
-NPos3d.VText.prototype = {
-    type: 'VText',
-    getStateString: function() {
-        var t = this
-        return (t.string + t.textAlign + t.characterWidth + t.letterSpacing + t.lineHeight + t.fontSize).toString()
-    },
-    cacheTextGeom: function() {
-        var t = this
-        //this line is -important-: if any text property changes, new point caches won't be updated without scaling or rotating the object.
-        t.lastGlobalCompositeMatrixString = false
-
-        //clear the geom, but keep the array references
-        t.shape.points.length = 0
-        t.shape.lines.length = 0
-
-        var offsetPointCount = 0
-        var textAlignTypes = {
-            left: {
-                charOffset: function() {
-                    return 0
-                },
-                spacingOffset: 0
-            },
-            right: {
-                charOffset: function(num) {
-                    return -num
-                },
-                spacingOffset: t.letterSpacing
-            },
-            center: {
-                charOffset: function(num) {
-                    //Plus 2 because each character is 2 wide.
-                    return -(num / 2)
-                },
-                spacingOffset: t.letterSpacing / 2
-            }
-        }
-        if (textAlignTypes.hasOwnProperty(t.textAlign)) {
-            var offsetSpacing = textAlignTypes[t.textAlign].spacingOffset
-            var linesOText = t.string.split('\n')
-            for (var lineNum = 0; lineNum < linesOText.length; lineNum += 1) {
-                var thisLine = linesOText[lineNum]
-                var charCount = thisLine.length
-                var offsetCharCount = textAlignTypes[t.textAlign].charOffset(charCount)
-                for (var charNum = 0; charNum < charCount; charNum += 1) {
-                    var thisChar = thisLine[charNum]
-                    //console.log(t.string[i]);
-                    if (thisChar === ' ') {
-                        //This is a space character.
-                        //I need to bump over the text by one char,
-                        //but I don't need to add any geom.
-                    } else if (thisChar === '\t') {
-                        //This is a tab character.
-                        //I need to bump over the text by TWO chars,
-                        //but I don't need to add any geom.
-                        offsetCharCount += 1
-                    } else if (t.font.hasOwnProperty(thisChar)) {
-                        var letter = t.font[thisChar]
-                        for (var p = 0; p < letter.points.length; p += 1) {
-                            t.shape.points.push([
-                                (letter.points[p][0] + ((t.characterWidth + t.letterSpacing) * offsetCharCount) + offsetSpacing) * t.fontSize / t.characterHeight,
-                                (letter.points[p][1] + (t.lineHeight * lineNum) - t.characterHeightOffset) * t.fontSize / t.characterHeight,
-                                letter.points[p][2] || 0
-                            ])
-                        }
-                        for (var l = 0; l < letter.lines.length; l += 1) {
-                            var line = letter.lines[l]
-                            t.shape.lines.push([line[0] + offsetPointCount, line[1] + offsetPointCount])
-                        }
-                        //console.log('#char',thisChar,'#points',t.shape.points,'#lines',t.shape.lines);
-                        offsetPointCount = t.shape.points.length
-                    } else {
-                        throw('This font does not contain the character "' + ch + '"')
-                    }
-                    offsetCharCount += 1
-                }
-                offsetCharCount = 0
-            }
-        } else {
-            throw('You passed an unsupported textAlign type named "' + t.textAlign + '"')
-        }
-
-        t.stringCached = t.getStateString()
-    },
-    update: function(s) {
-        var t = this
-        if (t.getStateString() !== t.stringCached) {
-            t.cacheTextGeom()
-        }
-        t.shape.color = t.color
-    },
-    destroy: NPos3d.destroyFunc
-}
 NPos3d.Layout = NPos3d.Layout || {}
 
 NPos3d.Layout.ResponsivePoint = function(args) {

@@ -1,9 +1,8 @@
 import Tweakpane from 'tweakpane'
 import NPos3d from '../modules/npos3d'
 import {paneOptions} from '../modules/paneOptions'
-import mouse from '../modules/mouse'
 import presets from '../presets/shell'
-import {createGradControls, gradParams, getActualGradient} from '../modules/gradient'
+import {createGradControls, getActualGradient, gradParams} from '../modules/gradient'
 
 let paramsDefault = {
     rings: 14,
@@ -61,8 +60,8 @@ if (presets.length) {
     pane.refresh()
 }
 
-let saveBtn = f1.addButton({title: 'Copy preset'});
-saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())));
+let saveBtn = f1.addButton({title: 'Copy preset'})
+saveBtn.on('click', () => navigator.clipboard.writeText(JSON.stringify(pane.exportPreset())))
 
 let presetTimer
 
@@ -84,7 +83,7 @@ pane.on('change', e => {
 })
 
 let lib = NPos3d
-let canvas =document.querySelector('[data-canvas]')
+let canvas = document.querySelector('[data-canvas]')
 let scene = new lib.Scene({
     canvas: canvas,
     backgroundColor: '#fff'

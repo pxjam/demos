@@ -362,7 +362,7 @@ let init = function() {
 
     box.onmousewheel = function(e) {
         if (!running) return true
-        cz += e.wheelDelta / 5
+        cz += e.wheelDelta
         return false
     }
 
