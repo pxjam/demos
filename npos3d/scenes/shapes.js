@@ -15,6 +15,8 @@ let paramsDefault = {
     scaleX: 30,
     scaleY: 30,
     scaleZ: 30,
+    centerX: 0.5,
+    centerY: 0.5,
     segments: 24,
     rings: 16,
     twist: false,
@@ -54,6 +56,8 @@ f1.addInput(params, 'shape', {
 f1.addInput(params, 'scaleX', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'scaleY', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'scaleZ', {min: 1, max: 100, step: 1})
+f1.addInput(params, 'centerX', {min: 0, max: 1, step: 0.01})
+f1.addInput(params, 'centerY', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'segments', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'rings', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'twist')
@@ -129,19 +133,22 @@ function setup() {
         if (child.type !== 'Camera') scene.remove(child)
     })
 
-    let mesh = createMesh()
+    let x = params.centerX * scene.w - scene.cx
+    let y = params.centerY * scene.h - scene.cy
+    let mesh = createMesh(x,y)
+
     mesh.update = function () {
         let t = this
         t.rot[0] = -mouse.cy * params.rotateStrength / 100000
         t.rot[1] = mouse.cx * params.rotateStrength / 100000
-        t.pos[0] = mouse.cx * params.moveStrength / 100
-        t.pos[1] = mouse.cy * params.moveStrength / 100
+        t.pos[0] = x + mouse.cx * params.moveStrength / 100
+        t.pos[1] = y + mouse.cy * params.moveStrength / 100
     }
 
     scene.add(mesh)
 }
 
-function createMesh() {
+function createMesh(x,y) {
     let shape
     switch (params.shape) {
         case 'sphere':
@@ -173,7 +180,7 @@ function createMesh() {
 
     return new lib.Ob3D({
         shape,
-        pos: [0, 0, 0],
+        pos: [x, y, 0],
         rot: [0, 0, 0],
         scale: [params.scaleX, params.scaleY, params.scaleZ],
         color: createGradient()
