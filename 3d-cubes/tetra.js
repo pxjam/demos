@@ -20,6 +20,7 @@ let paramsDefault = {
     // stepRotate: 1.1,
     innerRotateSpeed: 15,
     revertInnerRotate: false,
+    mouseRotatePower: 25,
     mouseRotateInertia: 200,
     mouseMagnetic: 30,
     zoom: 1,
@@ -53,6 +54,7 @@ f1.addInput(params, 'autorotate')
 f1.addInput(params, 'autorotateSpeed', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'revertInnerRotate')
 f1.addInput(params, 'innerRotateSpeed', {min: 0, max: 100, step: 1})
+f1.addInput(params, 'mouseRotatePower', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'mouseRotateInertia', {min: 1, max: 1000, step: 1})
 f1.addInput(params, 'mouseMagnetic', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'centerX', {min: 0, max: 1, step: 0.01})
@@ -178,9 +180,8 @@ let init = function() {
 
         // detectFaceOver()
         if (drag) {
-            cx = cxb + (xm - startX)
-            cy = cyb - (ym - startY)
-            //console.log(cx)
+            cx = cxb + (xm - startX) * params.mouseRotatePower / 100
+            cy = cyb - (ym - startY) * params.mouseRotatePower / 100
         }
 
         // TODO mouse
@@ -211,12 +212,16 @@ let init = function() {
 let run = function() {
     Line.eraseAll()
 
+    ctx.save()
+
     if (params.gradPreview) {
         ctx.fillStyle = gradient
         ctx.fillRect(0, 0, canvas.width, canvas.height)
     } else {
         ctx.fillStyle = `rgba(255, 255, 255, ${1 - params.framesOverlay})`
         ctx.fillRect(0, 0, canvasW, canvasH)
+
+        // ctx.globalCompositeOperation = 'destination-out'
 
         ctx.strokeStyle = gradient
 
@@ -251,6 +256,9 @@ let run = function() {
             line.draw(ctx)
         }
     }
+
+    ctx.restore()
+
     requestAnimationFrame(run)
 }
 
