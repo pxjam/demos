@@ -6,6 +6,7 @@
     "npos3d": "parcel npos3d/shapes.html",
     "npos3d-build": "rimraf out/npos3d && parcel build npos3d/*.html --public-url ./ -d out/npos3d && git add out/npos3d/*",
     "3d-cubes": "parcel 3d-cubes/index.html",
+    "3d-cubes-tetra": "parcel 3d-cubes/tetra.html",
     "3d-cubes-build": "rimraf out/3d-cubes && parcel build 3d-cubes/*.html --public-url ./ -d out/3d-cubes && git add out/3d-cubes/*",
     "tri-demo": "parcel tri/demo.html",
     "tri-build": "rimraf out/tri && parcel build tri/*.html --public-url ./ -d out/tri && git add out/tri/*",
