@@ -100,8 +100,6 @@ let cyb = 0
 let white
 let alpha
 let fps = 0
-let ncube
-let npoly
 let drag = true
 let moved
 let startX = 0
@@ -167,10 +165,6 @@ let Face = function(cube, index, normalVector) {
 
     // normal vector
     this.normal = new Point(this, normalVector, false)
-
-    // faces
-    npoly++
-    document.getElementById('npoly').innerHTML = npoly
 }
 
 Face.prototype = {
@@ -209,8 +203,6 @@ Face.prototype = {
         let g
         let b
 
-        // TODO пока отключил не успеваю
-        // TODO замерить производительность и посмотреть можно ли оптимизировать код
         let drawSingleLine = (line) => {
             let lineSum = line.reduce((acc, val) => acc + val)
 
@@ -310,7 +302,6 @@ let Cube = function(nx, ny, nz, x, y, z, w) {
             new Face(this, f[i], nv[i])
         )
     }
-    ncube++
 }
 
 
@@ -330,8 +321,6 @@ let resize = function() {
 function reset() {
     cubes = []
     faces = []
-    ncube = 0
-    npoly = 0
 
     let size = params.firstCubeSize
 
@@ -411,6 +400,8 @@ let init = function() {
 // main loop
 let run = function() {
     drawnLines = []
+    ctx.save()
+
 
     if (params.gradPreview) {
         ctx.fillStyle = gradient
@@ -418,9 +409,12 @@ let run = function() {
     } else {
         // screen background
         let bg = (params.bgLight) ? '255,255,255' : '0,0,0'
+
         ctx.fillStyle = `rgba(${bg}, ${1 - params.framesOverlay})`
         ctx.fillRect(0, 0, canvasW, canvasH)
 
+        // ctx.globalCompositeOperation = 'destination-out'
+        // ctx.globalCompositeOperation = 'xor'
 
         // points projection
         minZ = 0
@@ -480,6 +474,8 @@ let run = function() {
             } else break
         }
     }
+
+    ctx.restore()
     // console.log(drawnLines)
     fps++
     if (running) requestAnimationFrame(run)
