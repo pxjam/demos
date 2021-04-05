@@ -117,7 +117,8 @@ window.scene = new lib.Scene({
     backgroundColor: '#fff'
 })
 
-let gradient = 'purple'
+scene.canvas.addEventListener('click', () => f1.expanded = false)
+
 setup()
 
 // function declarations
