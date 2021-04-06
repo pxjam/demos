@@ -35,6 +35,18 @@
     font-weight: 400;
 }
 
+@font-face {
+    font-family: NEWPixelcomMediumWoff;
+    src: url("./fonts/new/Pixelcom-Medium.woff") format("woff");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: NEWPixelcomMediumWoff2;
+    src: url("./fonts/new/Pixelcom-Medium.woff2") format("woff2");
+    font-weight: 500;
+}
+
 html {
     font-family: PixelcomMedium, Arial, sans-serif;
     font-size: 16px;
@@ -100,4 +112,12 @@ body {
 
 .regular-ttf {
     font-family: NeueMachinaRegularTtf, sans-serif;
+}
+
+.pxcom-new-woff {
+    font-family: NEWPixelcomMediumWoff, sans-serif;
+}
+
+.pxcom-new-woff2 {
+    font-family: NEWPixelcomMediumWoff2, sans-serif;
 }
