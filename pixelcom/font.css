@@ -49,13 +49,13 @@
 
 @font-face {
     font-family: NEWFIXPixelcomMediumWoff2;
-    src: url("./fonts/fix/subset-NeueMachina-Medium.woff2") format("woff2");
+    src: url("./fonts/fix/pixelcom-medium.woff2") format("woff2");
     font-weight: 500;
 }
 
 @font-face {
     font-family: NEWFIXPixelcomMediumWoff;
-    src: url("./fonts/fix/subset-NeueMachina-Medium.woff") format("woff");
+    src: url("./fonts/fix/pixelcom-medium.woff") format("woff");
     font-weight: 500;
 }
 
