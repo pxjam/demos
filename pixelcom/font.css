@@ -47,6 +47,18 @@
     font-weight: 500;
 }
 
+@font-face {
+    font-family: NEWFIXPixelcomMediumWoff2;
+    src: url("./fonts/fix/subset-NeueMachina-Medium.woff2") format("woff2");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: NEWFIXPixelcomMediumWoff;
+    src: url("./fonts/fix/subset-NeueMachina-Medium.woff") format("woff");
+    font-weight: 500;
+}
+
 html {
     font-family: PixelcomMedium, Arial, sans-serif;
     font-size: 16px;
@@ -120,4 +132,12 @@ body {
 
 .pxcom-new-woff2 {
     font-family: NEWPixelcomMediumWoff2, sans-serif;
+}
+
+.pxcom-new-fix-woff2 {
+    font-family: NEWFIXPixelcomMediumWoff2, sans-serif;
+}
+
+.pxcom-new-fix-woff {
+    font-family: NEWFIXPixelcomMediumWoff, sans-serif;
 }
