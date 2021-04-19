@@ -1,7 +1,7 @@
 import Point from './Point'
 import Line from './Line'
 ///import mouse from '../'
-import {canvasH, canvasW, lines, mouseX, mouseY, params} from '../tetra'
+import {canvasH, canvasW, lines, params} from '../tetra'
 
 let count = 0
 
@@ -57,7 +57,6 @@ export default class Tetra {
     }
 
     projectPoint = (point) => {
-        // 3D rotation
         let x = this.cosY * (this.sinZ * point.yo + this.cosZ * point.xo) - this.sinY * point.zo
 
         let y = this.sinX * (this.cosY * point.zo + this.sinY * (this.sinZ * point.yo + this.cosZ * point.xo)) +
@@ -70,14 +69,6 @@ export default class Tetra {
         this.y = y
         this.z = z
 
-        // point visible
-        // if (z < minZ) minZ = z
-        // this.visible = (params.zoom + z > 0)
-
-        // 3D to 2D projection
-        // let mouseShiftX = mouseX * canvasW * params.mouseMagnetic / 1000 * (count - this.sort)
-        // let mouseShiftY = mouseY * canvasH * params.mouseMagnetic / 1000 * (count - this.sort)
-        // TODO magnetic
         let mouseShiftX = 0
         let mouseShiftY = 0
 

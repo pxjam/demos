@@ -3,7 +3,7 @@ import {createGradControls, getActualGradient, gradParams} from './modules/gradi
 import presets from './presets/tetra'
 import getPreset from '../common/utils/getPreset'
 import Line from './geom/Line'
-import Tetra from './geom/Tetra'
+import Sphere from './geom/Sphere'
 
 let paramsDefault = {
     firstObjectSize: 100,
@@ -101,12 +101,6 @@ let drag = true
 let moved
 let startX = 0
 let startY = 0
-let cosY
-let sinY
-let cosX
-let sinX
-let cosZ
-let sinZ
 let minZ
 let angleY = 0
 let angleX = 0
@@ -114,12 +108,6 @@ let angleZ = 0
 
 export let mouseX = 0
 export let mouseY = 0
-
-// to except drawing same edge twice
-let drawnLines = []
-// fov
-// let perspective = 1000
-// let zoom = 1000
 
 let gradient
 

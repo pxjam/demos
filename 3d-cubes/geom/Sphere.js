@@ -1,7 +1,6 @@
 import Point from './Point'
 import Line from './Line'
-///import mouse from '../'
-import {canvasH, canvasW, lines, mouseX, mouseY, params} from '../tetra'
+import {canvasH, canvasW, lines, params} from '../sphere'
 
 let count = 0
 

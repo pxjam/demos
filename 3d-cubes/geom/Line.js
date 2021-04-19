@@ -1,4 +1,5 @@
 let drawnLines = []
+import mouse from '../modules/mouse'
 
 export default class Line {
     constructor(point0, point1) {

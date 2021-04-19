@@ -4,6 +4,7 @@ import presets from './presets/tetra'
 import getPreset from '../common/utils/getPreset'
 import Line from './geom/Line'
 import Tetra from './geom/Tetra'
+import mouse from './modules/mouse'
 
 let paramsDefault = {
     firstObjectSize: 100,
@@ -44,6 +45,7 @@ function reduceArrayToObject(acc, curr) {
     return acc
 }
 
+// TODO may be chain??
 f1.addInput(params, 'firstObjectSize', {min: 1, max: 200, step: 1})
 f1.addInput(params, 'objectsCount', {min: 1, max: 50, step: 1})
 f1.addInput(params, 'duplicateFactor', {min: 0.01, max: 3, step: 0.001})
@@ -88,34 +90,15 @@ let canvas
 let ctx
 let objects
 export let lines
-let nx
-let ny
 export let canvasW
 export let canvasH
-let xm = 0
-let ym = 0
 let cx = 50
 let cy = 50
 let cz = 0
-let cxb = 0
-let cyb = 0
-let drag = true
-let moved
-let startX = 0
-let startY = 0
-let cosY
-let sinY
-let cosX
-let sinX
-let cosZ
-let sinZ
 let minZ
 let angleY = 0
 let angleX = 0
 let angleZ = 0
-
-export let mouseX = 0
-export let mouseY = 0
 
 // to except drawing same edge twice
 let drawnLines = []
@@ -129,11 +112,7 @@ let resize = function() {
     // screen resize
     canvasW = box.offsetWidth
     canvasH = box.offsetHeight
-    let o = box
-    for (nx = 0, ny = 0; o != null; o = o.offsetParent) {
-        nx += o.offsetLeft
-        ny += o.offsetTop
-    }
+
     canvas.width = canvasW
     canvas.height = canvasH
 }
@@ -160,56 +139,21 @@ let init = function() {
     canvas = document.querySelector('[data-canvas]')
     ctx = canvas.getContext('2d')
 
-    // unified touch/mouse events handler
-    box.ontouchstart = box.onmousedown = function(e) {
-        // touchstart
-        if (e.target !== canvas) return
-        e.preventDefault() // prevents scrolling
-        if (box.setCapture) box.setCapture()
-        moved = false
-        //drag = true
-        startX = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX) - nx
-        startY = (e.clientY !== undefined ? e.clientY : e.touches[0].clientY) - ny
-    }
-
-    box.ontouchmove = box.onmousemove = function(e) {
-        // touchmove
-        e.preventDefault()
-        xm = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX) - nx
-        ym = (e.clientY !== undefined ? e.clientY : e.touches[0].clientY) - ny
-
-        // detectFaceOver()
-        if (drag) {
-            cx = cxb + (xm - startX) * params.mouseRotatePower / 100
-            cy = cyb - (ym - startY) * params.mouseRotatePower / 100
-        }
-
-        // TODO mouse
-        // mouseX = (canvasW / 2 - xm) / canvasW
-        // mouseY = (canvasH / 2 - ym) / canvasH
-
-        if (Math.abs(xm - startX) > 10 || Math.abs(ym - startY) > 10) {
-            // if pointer moves then cancel the tap/click
-            moved = true
-        }
-    }
-
-    box.onmousewheel = function(e) {
+    window.addEventListener('mousewheel', e => {
         cz += e.wheelDelta
-        return false
-    }
+    })
 
     resize()
     window.addEventListener('resize', resize, false)
 
     reset()
     updateGradient()
-    run()
+    render()
     updatePerspective()
 }
 
 // main loop
-let run = function() {
+function render() {
     Line.eraseAll()
 
     ctx.save()
@@ -221,11 +165,11 @@ let run = function() {
         ctx.fillStyle = `rgba(255, 255, 255, ${1 - params.framesOverlay})`
         ctx.fillRect(0, 0, canvasW, canvasH)
 
+        cx = mouse.x * params.mouseRotatePower / 100
+        cy = -mouse.y * params.mouseRotatePower / 100
+
         // ctx.globalCompositeOperation = 'destination-out'
-
         ctx.strokeStyle = gradient
-
-        // ctx.strokeStyle =
 
         // points projection
         minZ = 0
@@ -252,14 +196,13 @@ let run = function() {
         let j = 0
         let line
         while (line = lines[j++]) {
-            // console.log(line)
             line.draw(ctx)
         }
     }
 
     ctx.restore()
 
-    requestAnimationFrame(run)
+    requestAnimationFrame(render)
 }
 
 let updateGradient = () => gradient = getActualGradient(canvas, params)
