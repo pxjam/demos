@@ -1,6 +1,6 @@
 import Point from './Point'
 import Line from './Line'
-///import mouse from '../'
+import {mouse, mouseShift} from '../modules/mouse'
 import {canvasH, canvasW, lines, params} from '../tetra'
 
 let count = 0
@@ -12,6 +12,9 @@ export default class Tetra {
         this.r = r
         this.points = []
         this.rotate(0, 0, 0)
+
+        this.forceX = 0
+        this.forceY = 0
 
         let SQRT2 = Math.SQRT2
 
@@ -69,11 +72,32 @@ export default class Tetra {
         this.y = y
         this.z = z
 
-        let mouseShiftX = 0
-        let mouseShiftY = 0
+        let X = (canvasW * params.centerX) + x * (params.perspective / (z + params.zoom))
+        let Y = (canvasH * params.centerY) + y * (params.perspective / (z + params.zoom))
 
-        point.X = (canvasW * params.centerX) + x * (params.perspective / (z + params.zoom)) + mouseShiftX
-        point.Y = (canvasH * params.centerY) + y * (params.perspective / (z + params.zoom)) + mouseShiftY
+        let magnet = !true
+
+        if (!magnet) {
+            let projectedPoint = mouseShift(X, Y)
+            point.X = projectedPoint[0]
+            point.Y = projectedPoint[1]
+        } else {
+            this.X0 = (canvasW * params.centerX) + x * (params.perspective / (z + params.zoom))
+            this.Y0 = (canvasH * params.centerY) + y * (params.perspective / (z + params.zoom))
+
+            let distanceX = x - mouse.x
+            let distanceY = y - mouse.y
+            let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
+
+            let powerX = x - (distanceX / distance) * magnet / distance
+            let powerY = y - (distanceY / distance) * magnet / distance
+
+            this.forceX = (this.forceX + (this.X0 - X) / 2) / 2.1
+            this.forceY = (this.forceY + (this.Y0 - Y) / 2) / 2.1
+
+            this.X = powerX + this.forceX
+            this.Y = powerY + this.forceY
+        }
     }
 
     projection = () => this.points.forEach(point => this.projectPoint(point))

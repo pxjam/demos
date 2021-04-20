@@ -3,16 +3,16 @@ let wh = window.innerHeight
 let clientX = ww / 2
 let clientY = wh / 2
 
-window.addEventListener('resize', () => {
-    ww = window.innerWidth
-    wh = window.innerHeight
-})
-
-let mouse = {
+export let mouse = {
     x: clientX,
     y: clientY,
     inertia: 0.05
 }
+
+window.addEventListener('resize', () => {
+    ww = window.innerWidth
+    wh = window.innerHeight
+})
 
 let mousemoveTimer
 let lastClientX
@@ -81,4 +81,24 @@ function mouseMoveHandler(e) {
 window.addEventListener('mousemove', mouseMoveHandler)
 window.addEventListener('touchmove', mouseMoveHandler)
 
-export default mouse
+export function mouseShift(x, y, power = 120) {
+    let distanceX = x - mouse.x
+    let distanceY = y - mouse.y
+    let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
+    let correction = Math.E ** -(distance / power)
+
+    let shiftX = distanceX * correction
+    let shiftY = distanceY * correction
+
+    return [x + shiftX, y + shiftY]
+}
+
+// export function mouseMagnet(x, y, magnet = 120) {
+//     let distanceX = x - mouse.x
+//     let distanceY = y - mouse.y
+//     let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
+//
+//
+//
+//     return [x + shiftX, y + shiftY]
+// }

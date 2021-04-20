@@ -4,7 +4,7 @@ import presets from './presets/tetra'
 import getPreset from '../common/utils/getPreset'
 import Line from './geom/Line'
 import Tetra from './geom/Tetra'
-import mouse from './modules/mouse'
+import {mouse} from './modules/mouse'
 
 let paramsDefault = {
     firstObjectSize: 100,
