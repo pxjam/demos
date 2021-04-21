@@ -5,6 +5,7 @@ import getPreset from '../common/utils/getPreset'
 import Line from './geom/Line'
 import Tetra from './geom/Tetra'
 import {mouse} from './modules/mouse'
+import reduceArrayToObject from './utils/reduceArrayToObject'
 
 let paramsDefault = {
     firstObjectSize: 100,
@@ -23,12 +24,13 @@ let paramsDefault = {
     revertInnerRotate: false,
     mouseRotatePower: 25,
     mouseRotateInertia: 200,
-    mouseMagnetic: 30,
+    mousePower: 30,
+    mouseCoverage: 200,
+    mouseMode: 'bloat',
     zoom: 1,
     size: 1.2,
     centerX: 0.5,
     centerY: 0.5,
-    cursorMode: 'bloat',
     ...gradParams,
 }
 export let params = Object.assign({}, paramsDefault)
@@ -41,20 +43,12 @@ let f1 = pane.addFolder({
     expanded: false
 })
 
-function reduceArrayToObject(acc, curr) {
-    acc[curr] = curr
-    return acc
-}
-
 // TODO may be chain??
 f1.addInput(params, 'firstObjectSize', {min: 1, max: 200, step: 1})
 f1.addInput(params, 'objectsCount', {min: 1, max: 50, step: 1})
 f1.addInput(params, 'duplicateFactor', {min: 0.01, max: 3, step: 0.001})
 f1.addInput(params, 'duplicateMethod', {
-    options: ['sum', 'multiply'].reduce(reduceArrayToObject, {})
-})
-f1.addInput(params, 'cursorMode', {
-    options: ['bloat', 'repel', 'attract'].reduce(reduceArrayToObject, {})
+    options: reduceArrayToObject(['sum', 'multiply'])
 })
 f1.addInput(params, 'autorotate')
 f1.addInput(params, 'autorotateSpeed', {min: 0, max: 100, step: 1})
@@ -62,7 +56,11 @@ f1.addInput(params, 'revertInnerRotate')
 f1.addInput(params, 'innerRotateSpeed', {min: 0, max: 100, step: 1})
 f1.addInput(params, 'mouseRotatePower', {min: 1, max: 100, step: 1})
 f1.addInput(params, 'mouseRotateInertia', {min: 1, max: 1000, step: 1})
-f1.addInput(params, 'mouseMagnetic', {min: 1, max: 100, step: 1})
+f1.addInput(params, 'mousePower', {min: 1, max: 200, step: 1})
+f1.addInput(params, 'mouseCoverage', {min: 1, max: 800, step: 1})
+f1.addInput(params, 'mouseMode', {
+    options: reduceArrayToObject(['bloat', 'repel', 'attract'])
+})
 f1.addInput(params, 'centerX', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'centerY', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'perspective', {min: 0, max: 3000, step: 1})
@@ -103,17 +101,9 @@ let minZ
 let angleY = 0
 let angleX = 0
 let angleZ = 0
-
-// to except drawing same edge twice
-let drawnLines = []
-// fov
-// let perspective = 1000
-// let zoom = 1000
-
 let gradient
 
 let resize = function() {
-    // screen resize
     canvasW = box.offsetWidth
     canvasH = box.offsetHeight
 
@@ -156,7 +146,6 @@ let init = function() {
     updatePerspective()
 }
 
-// main loop
 function render() {
     Line.eraseAll()
 
@@ -214,10 +203,18 @@ let updateGradient = () => gradient = getActualGradient(canvas, params)
 let updatePerspective = () => params.zoom = params.perspective * params.size
 
 window.pane.on('change', (e) => {
+    if (e.presetKey == 'mouseMode') {
+        mouse.mode = e.value
+    }
+    if (e.presetKey == 'mousePower') {
+        mouse.power = e.value
+    }
+    if (e.presetKey == 'mouseCoverage') {
+        mouse.coverage = e.value
+    }
     updatePerspective()
     reset()
     updateGradient()
-    // pane.refresh()
 })
 
 init()

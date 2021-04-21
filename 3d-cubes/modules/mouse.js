@@ -6,8 +6,10 @@ let clientY = wh / 2
 export let mouse = {
     x: clientX,
     y: clientY,
-    inertia: 0.05,
-    cursorMode: '' // bloat repel attract
+    inertia: 0.09,
+    mode: 'bloat',
+    power: 80,
+    coverage: 200
 }
 
 window.addEventListener('resize', () => {
@@ -82,16 +84,44 @@ function mouseMoveHandler(e) {
 window.addEventListener('mousemove', mouseMoveHandler)
 window.addEventListener('touchmove', mouseMoveHandler)
 
-export function mouseShift(x, y, power = 70) {
+export function mouseShift(x, y) {
+    if (!mouse.mode) {
+        return [x, y]
+    }
+
     let distanceX = x - mouse.x
     let distanceY = y - mouse.y
     let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)
-    let correction = Math.E ** -(distance / power)
+    let factor = Math.E ** -(distance / mouse.power)
 
-    let shiftX = distanceX * correction
-    let shiftY = distanceY * correction
+    if (mouse.mode == 'bloat') {
+        let shiftX = distanceX * factor
+        let shiftY = distanceY * factor
 
-    return [x + shiftX, y + shiftY]
+        return [x + shiftX, y + shiftY]
+    }
+
+    if (mouse.mode == 'repel') {
+        let shiftX = 0
+        let shiftY = 0
+
+        if (distance < mouse.coverage) {
+            let repelFactor = mouse.power / mouse.coverage
+            let angle = Math.atan2(distanceY, distanceX)
+
+            shiftX = (Math.cos(angle) * mouse.coverage - distanceX) * repelFactor
+            shiftY = (Math.sin(angle) * mouse.coverage - distanceY) * repelFactor
+        }
+
+        return [x + shiftX, y + shiftY]
+    }
+
+    if (mouse.mode == 'attract') {
+        let shiftX = distanceX * factor
+        let shiftY = distanceY * factor
+
+        return [x - shiftX, y - shiftY]
+    }
 }
 
 // export function mouseMagnet(x, y, magnet = 120) {
