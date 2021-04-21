@@ -6,7 +6,8 @@ let clientY = wh / 2
 export let mouse = {
     x: clientX,
     y: clientY,
-    inertia: 0.05
+    inertia: 0.05,
+    cursorMode: '' // bloat repel attract
 }
 
 window.addEventListener('resize', () => {

@@ -82,6 +82,7 @@ export default class Tetra {
             point.X = projectedPoint[0]
             point.Y = projectedPoint[1]
         } else {
+            // todo rewrite from new pen
             this.X0 = (canvasW * params.centerX) + x * (params.perspective / (z + params.zoom))
             this.Y0 = (canvasH * params.centerY) + y * (params.perspective / (z + params.zoom))
 

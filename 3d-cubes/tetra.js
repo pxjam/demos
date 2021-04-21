@@ -28,6 +28,7 @@ let paramsDefault = {
     size: 1.2,
     centerX: 0.5,
     centerY: 0.5,
+    cursorMode: 'bloat',
     ...gradParams,
 }
 export let params = Object.assign({}, paramsDefault)
@@ -51,6 +52,9 @@ f1.addInput(params, 'objectsCount', {min: 1, max: 50, step: 1})
 f1.addInput(params, 'duplicateFactor', {min: 0.01, max: 3, step: 0.001})
 f1.addInput(params, 'duplicateMethod', {
     options: ['sum', 'multiply'].reduce(reduceArrayToObject, {})
+})
+f1.addInput(params, 'cursorMode', {
+    options: ['bloat', 'repel', 'attract'].reduce(reduceArrayToObject, {})
 })
 f1.addInput(params, 'autorotate')
 f1.addInput(params, 'autorotateSpeed', {min: 0, max: 100, step: 1})
