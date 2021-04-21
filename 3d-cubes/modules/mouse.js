@@ -82,7 +82,7 @@ function mouseMoveHandler(e) {
 window.addEventListener('mousemove', mouseMoveHandler)
 window.addEventListener('touchmove', mouseMoveHandler)
 
-export function mouseShift(x, y, power = 120) {
+export function mouseShift(x, y, power = 70) {
     let distanceX = x - mouse.x
     let distanceY = y - mouse.y
     let distance = Math.sqrt(distanceX ** 2 + distanceY ** 2)

@@ -32,6 +32,7 @@
   },
   "author": "Dmitry Udovichenko",
   "devDependencies": {
+    "parcel": "latest",
     "@parcel/transformer-sass": "^2.0.0-beta.2",
     "babel-core": "^6.26.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -44,7 +45,6 @@
   "dependencies": {
     "dat.gui": "^0.7.7",
     "mathjs": "^9.3.0",
-    "parcel": "*",
     "three": "^0.126.1",
     "tweakpane": "^2.0.0"
   }
