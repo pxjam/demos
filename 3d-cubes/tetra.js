@@ -25,7 +25,7 @@ let paramsDefault = {
     mouseRotatePower: 25,
     mouseRotateInertia: 200,
     mousePower: 30,
-    mouseCoverage: 200,
+    mouseCoverage: 160,
     mouseMode: 'bloat',
     zoom: 1,
     size: 1.2,

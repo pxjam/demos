@@ -8,8 +8,8 @@ export let mouse = {
     y: clientY,
     inertia: 0.09,
     mode: 'bloat',
-    power: 80,
-    coverage: 200
+    power: 30,
+    coverage: 160
 }
 
 window.addEventListener('resize', () => {
