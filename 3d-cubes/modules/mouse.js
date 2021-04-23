@@ -7,7 +7,7 @@ export let mouse = {
     x: clientX,
     y: clientY,
     inertia: 0.09,
-    mode: 'bloat',
+    mode: 'repel',
     power: 30,
     coverage: 160
 }

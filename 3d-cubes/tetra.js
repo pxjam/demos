@@ -5,7 +5,7 @@ import getPreset from '../common/utils/getPreset'
 import Line from './geom/Line'
 import Tetra from './geom/Tetra'
 import {mouse} from './modules/mouse'
-import reduceArrayToObject from './utils/reduceArrayToObject'
+import getSymmetricObject from './utils/getSymmetricObject'
 
 let paramsDefault = {
     firstObjectSize: 100,
@@ -26,7 +26,7 @@ let paramsDefault = {
     mouseRotateInertia: 200,
     mousePower: 30,
     mouseCoverage: 160,
-    mouseMode: 'bloat',
+    mouseMode: 'repel',
     zoom: 1,
     size: 1.2,
     centerX: 0.5,
@@ -43,12 +43,11 @@ let f1 = pane.addFolder({
     expanded: false
 })
 
-// TODO may be chain??
 f1.addInput(params, 'firstObjectSize', {min: 1, max: 200, step: 1})
 f1.addInput(params, 'objectsCount', {min: 1, max: 50, step: 1})
 f1.addInput(params, 'duplicateFactor', {min: 0.01, max: 3, step: 0.001})
 f1.addInput(params, 'duplicateMethod', {
-    options: reduceArrayToObject(['sum', 'multiply'])
+    options: getSymmetricObject(['sum', 'multiply'])
 })
 f1.addInput(params, 'autorotate')
 f1.addInput(params, 'autorotateSpeed', {min: 0, max: 100, step: 1})
@@ -59,7 +58,7 @@ f1.addInput(params, 'mouseRotateInertia', {min: 1, max: 1000, step: 1})
 f1.addInput(params, 'mousePower', {min: 1, max: 200, step: 1})
 f1.addInput(params, 'mouseCoverage', {min: 1, max: 800, step: 1})
 f1.addInput(params, 'mouseMode', {
-    options: reduceArrayToObject(['bloat', 'repel', 'attract'])
+    options: getSymmetricObject(['repel', 'bloat', 'attract'])
 })
 f1.addInput(params, 'centerX', {min: 0, max: 1, step: 0.01})
 f1.addInput(params, 'centerY', {min: 0, max: 1, step: 0.01})
