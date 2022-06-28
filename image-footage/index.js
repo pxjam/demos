@@ -62,15 +62,24 @@ function imageFootage(trigger, images, delay) {
     trigger.addEventListener('mouseleave', stop)
 }
 
-const baseUrl = 'https://s3.timeweb.com/ch23840-sozdanie-dev/template/img/'
+const baseUrl = 'https://s3.timeweb.com/ch23840-sozdanie-dev/olympic/Vovk_'
 const imageNames = [
-    'stroitelstvo.jpg',
-    'project-1.jpg',
-    'project-2.jpg',
-    'cover-1.jpg',
-    'cover-2.jpg',
-    'building.jpg',
-    'block.jpg'
+    '7613.jpg',
+    '7611.jpg',
+    '7596.jpg',
+    '7588.jpg',
+    '7578.jpg',
+    '7554.jpg',
+    '7544.jpg',
+    '7526.jpg',
+    '7506.jpg',
+    '7501.jpg',
+    '7488.jpg',
+    '7465.jpg',
+    '7411.jpg',
+    '7406.jpg',
+    '7388.jpg',
+    '7383.jpg'
 ]
 const images = imageNames.map((name, i) => imageFromSrc(baseUrl + name, `image #${i}`))
 
