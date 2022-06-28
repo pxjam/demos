@@ -18,3 +18,6 @@
 - 3d imports
     - [Globe](https://pxjam.github.io/demos/out/3d-gltf/index.html)
     - [Sputnik](https://pxjam.github.io/demos/out/3d-gltf/sputnik.html)
+
+- Olympic
+    - [Image footage](https://pxjam.github.io/demos/out/image-footage/index.html)
