@@ -45,3 +45,10 @@ html, body {
     display: block;
     padding-bottom: calc(4 / 3 * 100%);
 }
+
+.ratio_2x3::before {
+    content: '';
+    width: 100%;
+    display: block;
+    padding-bottom: calc(3 / 2 * 100%);
+}
