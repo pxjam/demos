@@ -25,7 +25,8 @@
     "canvas-mesh-build": "rimraf out/canvas-mesh && parcel build canvas-mesh/index.html --public-url ./ --dist-dir out/canvas-mesh && git add out/canvas-mesh/*",
     "canvas-figures": "parcel canvas-figures/index.html",
     "canvas-figures-build": "rimraf out/canvas-figures && parcel build canvas-figures/index.html --public-url ./ --dist-dir out/canvas-figures && git add out/canvas-figures/*",
-    "image-footage": "parcel image-footage/index.html"
+    "image-footage": "parcel image-footage/index.html",
+    "image-footage-build": "rimraf out/image-footage && parcel build image-footage/index.html --public-url ./ --dist-dir out/image-footage && git add out/image-footage/*"
   },
   "repository": {
     "type": "git",
