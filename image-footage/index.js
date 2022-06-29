@@ -33,7 +33,7 @@ function imageFootage(trigger, images, delay) {
     }
 
     const loop = () => {
-        if (shouldStop) {
+        if (shouldStop || currentIndex >= images.length - 1) {
             reset()
             return
         }
