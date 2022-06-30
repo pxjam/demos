@@ -26,7 +26,9 @@
     "canvas-figures": "parcel canvas-figures/index.html",
     "canvas-figures-build": "rimraf out/canvas-figures && parcel build canvas-figures/index.html --public-url ./ --dist-dir out/canvas-figures && git add out/canvas-figures/*",
     "image-footage": "parcel image-footage/index.html",
-    "image-footage-build": "rimraf out/image-footage && parcel build image-footage/index.html --public-url ./ --dist-dir out/image-footage && git add out/image-footage/*"
+    "image-footage-build": "rimraf out/image-footage && parcel build image-footage/index.html --public-url ./ --dist-dir out/image-footage && git add out/image-footage/*",
+    "inner-parallax": "parcel inner-parallax/index.html",
+    "inner-parallax-build": "rimraf out/inner-parallax && parcel build inner-parallax/index.html --public-url ./ --dist-dir out/inner-parallax && git add out/inner-parallax/*"
   },
   "repository": {
     "type": "git",

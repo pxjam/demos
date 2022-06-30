@@ -1,0 +1,365 @@
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+html {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+$black: #1a1a1a;
+
+$spacer-xs: calc(6px + .6vw);
+$spacer-s: calc(10px + 1vw);
+$spacer-m: calc(15px + 1.5vw);
+$spacer: calc(25px + 2vw);
+$spacer-l: calc(40px + 4vw);
+$spacer-xl: calc(60px + 6vw);
+
+$viewport-mobile: 760px;
+$viewport-mobile-s: 550px;
+$viewport-mobile-xs: 400px;
+$viewport-mobile-xxs: 350px;
+$viewport-tablet: 999px;
+$viewport-desktop-s: 1360px;
+$viewport-desktop-xs: 1200px;
+$viewport-full-hd: 1920px;
+
+$viewport-mobile-min: $viewport-mobile + 1;
+$viewport-mobile-s-min: $viewport-mobile-s + 1;
+$viewport-tablet-min: $viewport-tablet + 1;
+$viewport-desktop-s-min: $viewport-desktop-s + 1;
+$viewport-desktop-xs-min: $viewport-desktop-xs + 1;
+
+@mixin mobile {
+    @media (max-width: $viewport-mobile) {
+        @content;
+    }
+}
+
+@mixin mobile-s {
+    @media (max-width: $viewport-mobile-s) {
+        @content;
+    }
+}
+
+@mixin mobile-xs {
+    @media (max-width: $viewport-mobile-xs) {
+        @content;
+    }
+}
+
+@mixin mobile-xxs {
+    @media (max-width: $viewport-mobile-xxs) {
+        @content;
+    }
+}
+
+@mixin not-mobile-s {
+    @media (min-width: #{$viewport-mobile-s + 1}) {
+        @content;
+    }
+}
+
+@mixin mobile-l {
+    @media (max-width: $viewport-mobile) and (min-width: $viewport-mobile-s-min) {
+        @content;
+    }
+}
+
+@mixin not-mobile {
+    @media (min-width: #{$viewport-mobile + 1}) {
+        @content;
+    }
+}
+
+@mixin mobile-and-vertical {
+    @media (max-width: $viewport-tablet) and (orientation: portrait), (max-width: $viewport-mobile) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (min-width: #{$viewport-mobile + 1}) and (max-width: $viewport-tablet) {
+        @content;
+    }
+}
+
+@mixin tablet-vertical {
+    //@media (min-width: $viewport-mobile + 1) and (max-width: $viewport-tablet) and (orientation: portrait) {
+    @media (min-width: #{$viewport-mobile + 1}) and (orientation: portrait) {
+        @content;
+    }
+}
+
+@mixin tablet-mobile {
+    @media (max-width: $viewport-tablet) {
+        @content;
+    }
+}
+
+@mixin not-desktop {
+    @media (max-width: $viewport-tablet) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (min-width: $viewport-tablet-min) {
+        @content;
+    }
+}
+
+@mixin desktop-s {
+    @media (min-width: $viewport-tablet-min) and (max-width: $viewport-desktop-s) {
+        @content;
+    }
+}
+
+@mixin up-to-desktop-s {
+    @media (max-width: $viewport-desktop-s) {
+        @content;
+    }
+}
+
+@mixin over-desktop-s {
+    @media (min-width: $viewport-desktop-s-min) {
+        @content;
+    }
+}
+
+@mixin desktop-l {
+    @media (min-width: $viewport-desktop-s-min) {
+        @content;
+    }
+}
+
+@mixin not-desktop-l {
+    @media (max-width: $viewport-desktop-s) {
+        @content;
+    }
+}
+
+// villages at home
+@mixin desktop-xs {
+    @media (min-width: $viewport-tablet-min) and (max-width: $viewport-desktop-xs) {
+        @content;
+    }
+}
+
+@mixin up-to-desktop-xs {
+    @media (max-width: $viewport-desktop-xs) {
+        @content;
+    }
+}
+
+@mixin over-desktop-xs {
+    @media (min-width: $viewport-desktop-xs-min) {
+        @content;
+    }
+}
+
+@mixin desktop-over-xs {
+    @media (min-width: $viewport-desktop-xs-min) {
+        @content;
+    }
+}
+
+@mixin over-full-hd {
+    @media (min-width: #{$viewport-full-hd + 1}) {
+        @content;
+    }
+}
+
+@mixin header-mobile {
+    @media (max-width: 1150px) {
+        @content;
+    }
+}
+
+
+.container {
+    background-color: #DBE5E3;
+}
+
+.main__slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px calc(25px + 2vw);
+
+    @include mobile {
+        padding: 0 20px calc(25px + 2vw);
+    }
+}
+
+.main__wrapper {
+    padding: 25px 50px;
+
+    &:last-child {
+        padding: 55px 50px 100px;
+    }
+
+    @include mobile {
+        padding: 15px 20px;
+
+        &:last-child {
+            padding: 50px 20px;
+        }
+    }
+}
+
+.main__video-wrapper {
+    height: 100%;
+    padding: 25px 50px;
+
+    @include mobile {
+        padding: 0;
+    }
+}
+
+.main__section {
+    position: relative;
+    height: 100%;
+    background-color: #FFFFFF;
+}
+
+.main__container {
+    position: relative;
+    padding-bottom: 66.66%;
+    height: 0;
+    overflow: hidden;
+
+    @include mobile {
+        padding-bottom: 125%;
+    }
+}
+
+.main__half-container {
+    position: relative;
+    padding-bottom: 125%;
+    height: 0;
+    overflow: hidden;
+}
+
+.main__mask {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.main__background {
+    width: 100%;
+
+    @include mobile {
+        width: auto;
+        height: 150%;
+        position: relative;
+        left: -65%;
+        top: 25%;
+    }
+}
+
+.main__half-background {
+    width: 100%;
+}
+
+.main__constructor-wrapper {
+    padding: 150px 50px 0;
+
+    @include mobile {
+        padding: 60px 20px 15px;
+    }
+}
+
+.main__constructor-title {
+    font-size: calc(1.25rem + ((1vw - 3.6px) * 1.6026));
+}
+
+.main__construsctor-create {
+    position: relative;
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: $black;
+    margin-bottom: $spacer-l;
+    margin-left: 60px;
+    margin-top: 38px;
+
+    &::before {
+        display: block;
+        content: " ";
+        position: absolute;
+        right: 100%;
+        margin-right: 20px;
+        top: calc(50% - 20px);
+        width: 40px;
+        height: 40px;
+        background-position: 50%;
+        background-repeat: no-repeat;
+    }
+
+    @include mobile {
+        font-size: 11px;
+    }
+}
+
+.main__half-sections {
+    height: 100%;
+    display: flex;
+    gap: 50px;
+    background-color: #FFFFFF;
+
+    @include mobile {
+        flex-direction: column;
+        gap: 30px;
+    }
+}
+
+.main__half-section {
+    position: relative;
+    width: 100%;
+}
+
+.main__text {
+    text-align: center;
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.main__title {
+    margin-bottom: $spacer-xs;
+    color: #FFFFFF;
+    white-space: nowrap;
+}
+
+.main__follow {
+    position: relative;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FFFFFF;
+
+    &::before,
+    &::after {
+        bottom: -2px;
+    }
+
+    &::after {
+        background-color: #FFFFFF;
+    }
+}
