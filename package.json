@@ -28,7 +28,7 @@
     "image-footage": "parcel image-footage/index.html",
     "image-footage-build": "rimraf out/image-footage && parcel build image-footage/index.html --public-url ./ --dist-dir out/image-footage && git add out/image-footage/*",
     "inner-parallax": "parcel inner-parallax/*.html",
-    "inner-parallax-build": "rimraf out/inner-parallax && parcel build inner-parallax/index.html --public-url ./ --dist-dir out/inner-parallax && git add out/inner-parallax/*"
+    "inner-parallax-build": "rimraf out/inner-parallax && parcel build inner-parallax/*.html --public-url ./ --dist-dir out/inner-parallax && git add out/inner-parallax/*"
   },
   "repository": {
     "type": "git",
