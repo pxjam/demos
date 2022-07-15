@@ -24,9 +24,11 @@ html, body {
 
 .image-wrap {
     position: relative;
+    overflow: hidden;
     width: 100%;
     max-width: 440px;
     margin: 30px;
+    border-radius: 12px;
 
     & > img {
         position: absolute;
@@ -51,4 +53,11 @@ html, body {
     width: 100%;
     display: block;
     padding-bottom: calc(3 / 2 * 100%);
+}
+
+.ratio_4x5::before {
+    content: '';
+    width: 100%;
+    display: block;
+    padding-bottom: calc(5 / 4 * 100%);
 }
