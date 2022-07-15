@@ -84,3 +84,25 @@ const processArray = (arr) => [...arr, ...arr.slice(1, arr.length - 1).reverse()
 
     imageFootage(root, images, 1000 / 5)
 }
+
+{
+    const baseUrl = 'https://s3.timeweb.com/ch23840-sozdanie-dev/olympic/rugs/olympic-'
+    const imageNames = [
+        '0.jpg',
+        '1.jpg',
+        '2.jpg',
+        '3.jpg',
+        '4.jpg',
+        '5.jpg',
+        '6.jpg',
+        '7.jpg',
+        '8.jpg'
+    ]
+
+    const images = processArray(imageNames).map((name, i) => imageFromSrc(baseUrl + name, `image #${i}`))
+
+    const root = document.querySelector('[data-image-footage="2"]')
+    images.forEach((img) => root.append(img))
+
+    imageFootage(root, images, 1000 / 5)
+}
