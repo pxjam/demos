@@ -65,67 +65,21 @@ function imageFootage(trigger, images, delay) {
 const processArray = (arr) => [...arr, ...arr.slice(1, arr.length - 1).reverse()] 
 
 {
-    const baseUrl = 'https://s3.timeweb.com/ch23840-sozdanie-dev/olympic/1/olympic_'
+    const baseUrl = 'https://s3.timeweb.com/ch23840-sozdanie-dev/olympic/tests/olympic-'
     const imageNames = [
+        '0.jpg',
         '1.jpg',
         '2.jpg',
         '3.jpg',
         '4.jpg',
         '5.jpg',
         '6.jpg',
-        '7.jpg',
-        '8.jpg',
-        '9.jpg',
-        '10.jpg'
+        '7.jpg'
     ]
 
     const images = processArray(imageNames).map((name, i) => imageFromSrc(baseUrl + name, `image #${i}`))
 
     const root = document.querySelector('[data-image-footage="1"]')
-    images.forEach((img) => root.append(img))
-
-    imageFootage(root, images, 1000 / 5)
-}
-
-{
-    const baseUrl = 'https://s3.timeweb.com/ch23840-sozdanie-dev/olympic/2/olympic_'
-    const imageNames = [
-        '1.jpg',
-        '2.jpg',
-        '3.jpg',
-        '4.jpg',
-        '5.jpg',
-        '6.jpg',
-        '7.jpg',
-        '8.jpg',
-        '9.jpg'
-    ]
-
-    const images = processArray(imageNames).map((name, i) => imageFromSrc(baseUrl + name, `image #${i}`))
-
-    const root = document.querySelector('[data-image-footage="2"]')
-    images.forEach((img) => root.append(img))
-
-    imageFootage(root, images, 1000 / 5)
-}
-
-{
-    const baseUrl = 'https://s3.timeweb.com/ch23840-sozdanie-dev/olympic/3/olympic_'
-    const imageNames = [
-        '1.jpg',
-        '2.jpg',
-        '3.jpg',
-        '4.jpg',
-        '5.jpg',
-        '6.jpg',
-        '7.jpg',
-        '8.jpg',
-        '9.jpg'
-    ]
-
-    const images = processArray(imageNames).map((name, i) => imageFromSrc(baseUrl + name, `image #${i}`))
-
-    const root = document.querySelector('[data-image-footage="3"]')
     images.forEach((img) => root.append(img))
 
     imageFootage(root, images, 1000 / 5)
